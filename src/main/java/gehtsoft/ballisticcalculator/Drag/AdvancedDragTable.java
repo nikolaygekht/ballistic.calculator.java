@@ -66,4 +66,14 @@ public class AdvancedDragTable implements IDragTable {
 
         return mNodes[m];
     }
+
+    public int length()
+    {
+        return mNodes.length;
+    }
+
+    public IDragTableNode get(int index)
+    {
+        return mNodes[index];
+    }
 }

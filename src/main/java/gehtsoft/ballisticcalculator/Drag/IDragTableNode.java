@@ -13,7 +13,7 @@ public interface IDragTableNode {
     /** Gets the previous node */
     public IDragTableNode getPrevious();
     /** Calculates for the specified velocity */
-    public double CalculateDrag(double mach);
+    public double calculateDrag(double mach);
     /** Checks whether the specified velocity is withing the node range */
-    public Boolean In(double mach);
+    public Boolean in(double mach);
 }

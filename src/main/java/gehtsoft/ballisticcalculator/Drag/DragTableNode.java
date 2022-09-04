@@ -30,12 +30,12 @@ class DragTableNode implements IDragTableNode {
     }
 
     /** Calculates for the specified velocity */
-    public double CalculateDrag(double mach) {
+    public double calculateDrag(double mach) {
         return mC + mach * (mB + mA * mach);
     }
 
     /** Checks whether the specified velocity is withing the node range */
-    public Boolean In(double mach) {
+    public Boolean in(double mach) {
         if (mach < mMach)
             return false;
         if (mNext == null)
@@ -51,6 +51,9 @@ class DragTableNode implements IDragTableNode {
         mMach = mach;
         mDragCoefficient = dragCoefficient;
         mPrevious = previous;
+        mA = a;
+        mB = b;
+        mC = c;
         mNext = null;
         if (previous != null)
             previous.setNext(this);

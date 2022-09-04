@@ -9,5 +9,18 @@ public interface IDragTable {
      */
     public DragTableId getID();
 
+    /**
+     * Finds node by velocity
+     */
     public IDragTableNode find(double mach);
+
+    /**
+     * Gets count of the data points
+     */
+    public int length();
+
+    /**
+     * Gets data point by index.
+     */
+    public IDragTableNode get(int index);
 }
