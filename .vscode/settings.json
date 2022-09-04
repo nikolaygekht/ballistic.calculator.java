@@ -4,7 +4,9 @@
         "ballisticcalculator",
         "CLDR",
         "milliradian",
-        "mrad"
+        "mrad",
+        "assertj"
+
     ],
     "java.configuration.updateBuildConfiguration": "automatic"
 }

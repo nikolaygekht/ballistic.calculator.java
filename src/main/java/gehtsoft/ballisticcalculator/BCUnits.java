@@ -8,7 +8,7 @@ import systems.uom.unicode.CLDR;
 import tech.units.indriya.function.MultiplyConverter;
 import tech.units.indriya.unit.TransformedUnit;
 
-public final class BallisticSpecificUnits {
+public final class BCUnits {
     /** 
      * Mass: One grain (1/7000 of pound) 
      */
