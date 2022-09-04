@@ -38,7 +38,7 @@ public class AdvancedDragTable implements IDragTable {
 
             mNodes[i] = new DragTableNode(points[i].getMach(), points[i].getDragCoefficient(), a, b, c, mNodes[i - 1]);
         }
-        mNodes[numberOfPoints - 1] = new DragTableNode(points[numberOfPoints - 1].getMach(), points[numberOfPoints - 1].getDragCoefficient(), 0, 0, points[numberOfPoints - 1].getDragCoefficient(), mNodes[numberOfPoints - 1]);
+        mNodes[numberOfPoints - 1] = new DragTableNode(points[numberOfPoints - 1].getMach(), points[numberOfPoints - 1].getDragCoefficient(), 0, 0, points[numberOfPoints - 1].getDragCoefficient(), mNodes[numberOfPoints - 2]);
     }
 
     public IDragTableNode find(double mach)
@@ -67,11 +67,17 @@ public class AdvancedDragTable implements IDragTable {
         return mNodes[m];
     }
 
+    /**
+     * Gets count of the data points
+     */
     public int length()
     {
         return mNodes.length;
     }
 
+    /**
+     * Gets data point by index.
+     */
     public IDragTableNode get(int index)
     {
         return mNodes[index];

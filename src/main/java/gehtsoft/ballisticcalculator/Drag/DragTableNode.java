@@ -47,7 +47,23 @@ class DragTableNode implements IDragTableNode {
         mNext = next;
     }
 
+    /** Constructor
+     * @param mach the minimum mach velocity covered by the node
+     * @param dragCoefficient the drag coefficient at the minimum velocity
+     * @param a the first coefficient of the polynomial
+     * @param b the second coefficient of the polynomial
+     * @param c the third coefficient of the polynomial
+     * @param previous the previous node
+     */
     public DragTableNode(double mach, double dragCoefficient, double a, double b, double c, DragTableNode previous) {
+        if (previous == null) {
+            if (mach > 1e-7)
+                throw new IllegalArgumentException("The first node must have mach = 0");
+        } else {
+            if (mach <= previous.getMach())
+                throw new IllegalArgumentException("The mach velocity must be greater than the previous node");
+        }
+        
         mMach = mach;
         mDragCoefficient = dragCoefficient;
         mPrevious = previous;
