@@ -3,7 +3,14 @@ package gehtsoft.ballisticcalculator;
 import org.junit.jupiter.api.Test;
 
 import gehtsoft.ballisticcalculator.Drag.*;
+import si.uom.SI;
+
 import static org.assertj.core.api.Assertions.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class TestDragTable {
     @Test
@@ -59,5 +66,30 @@ public class TestDragTable {
                 assertThat(node.calculateDrag(node.getMach() / 2)).isEqualTo(node.getDragCoefficient(), within(1e-7));
             }
         }
+    }
+
+    public static DrgFile LoadDragTable(String resourceName) throws IOException {
+        ClassLoader classLoader = TestDragTable.class.getClassLoader();
+        File file = new File(classLoader.getResource(resourceName).getFile());
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                DrgFile drgFile = DrgFile.read(reader);
+                return drgFile;
+        }
+    }
+
+    @Test
+    public void TestReadDRG() throws IOException {
+        DrgFile drgFile = LoadDragTable("drg2.txt");
+        assertThat(drgFile.getName()).isEqualTo("120mm Mortar (McCoy)");
+        assertThat(UnitUtils.in(drgFile.getBulletWeight(), SI.GRAM)).isEqualTo(13585);
+        assertThat(UnitUtils.in(drgFile.getBulletDiameter(), SI.METRE)).isEqualTo(0.11956);
+
+        assertThat(drgFile.length()).isEqualTo(7);
+        
+        assertThat(drgFile.get(0).getMach()).isEqualTo(0.0);
+        assertThat(drgFile.get(0).getDragCoefficient()).isEqualTo(0.119);
+        
+        assertThat(drgFile.get(6).getMach()).isEqualTo(0.95);
+        assertThat(drgFile.get(6).getDragCoefficient()).isEqualTo(0.182);
     }
 }
