@@ -3,7 +3,7 @@ package gehtsoft.ballisticcalculator.Data;
 import javax.measure.*;
 import javax.measure.quantity.*;
 
-import gehtsoft.ballisticcalculator.UnitUtils;
+import gehtsoft.ballisticcalculator.Units.UnitUtils;
 import systems.uom.common.Imperial;
 
 /**
@@ -32,8 +32,8 @@ public class Projectile {
     }
 
     /** The bullet diameter
-     * 
-     * The bullet diameter may be null. If bullet diameter is not set, 
+     *
+     * The bullet diameter may be null. If bullet diameter is not set,
      * the ballistic coefficient cannot be a form factor
     */
     public Quantity<Length> getBulletDiameter() {
@@ -41,15 +41,15 @@ public class Projectile {
     }
 
     /** The bullet length.
-     * 
+     *
      * The bullet length may be null. If bullet length is not set,
      * the bullet precession cannot be calculated.
-     * 
+     *
      */
     public Quantity<Length> getBulletLength() {
         return mBulletLength;
     }
-    
+
     /**
      * Constructor (minimum information)
      */
@@ -71,9 +71,9 @@ public class Projectile {
     }
 
     /** Get ballistic coefficient.
-     * 
+     *
      * If the value if a form factor, it calculates the coefficient via sectional density.
-     * In this case, the bullet diameter and weight (for an etalon bullet) is required. 
+     * In this case, the bullet diameter and weight (for an etalon bullet) is required.
      */
     public double getBallisticCoefficientValue() {
         if (mBallisticCoefficient.getType() == BallisticCoefficientValueType.Coefficient) {

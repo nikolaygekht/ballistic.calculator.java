@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator;
+package gehtsoft.ballisticcalculator.Units;
 
 import javax.measure.*;
 
@@ -11,10 +11,10 @@ public final class UnitUtils {
 
     public static <Q extends Quantity<Q>> double in(Quantity<Q> from, Unit<Q> to) {
             return convert(from.getUnit(), to, from.getValue().doubleValue());
-    }   
-    
+    }
+
     public static <Q extends Quantity<Q>> Quantity<Q> convert(Quantity<Q> from, Unit<Q> to) {
         return Quantities.getQuantity(convert(from.getUnit(), to, from.getValue().doubleValue()), to);
     }
-}   
+}
 

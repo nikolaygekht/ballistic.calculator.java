@@ -2,6 +2,8 @@ package gehtsoft.ballisticcalculator;
 
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import gehtsoft.ballisticcalculator.Units.*;
 import si.uom.SI;
 import systems.uom.unicode.*;
 import tech.units.indriya.quantity.Quantities;

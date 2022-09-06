@@ -1,6 +1,7 @@
-package gehtsoft.ballisticcalculator;
+package gehtsoft.ballisticcalculator.Units;
 
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.*;
 
 
@@ -26,7 +27,6 @@ public class TestUnits {
 
         assertThat(SI.RADIAN.getConverterTo(BCUnits.MIL).convert(2 * Math.PI))
             .isEqualTo(6400, within(1e-5));
-
     }
 
     @Test
@@ -37,11 +37,36 @@ public class TestUnits {
     }
 
     @Test
+    public void inchesPer100Yd()
+    {
+        assertThat(BCUnits.MRad.getConverterTo(BCUnits.INCHES_PER_100YARDS).convert(1))
+            .isEqualTo(3.6, within(1e-5));
+
+        assertThat(BCUnits.INCHES_PER_100YARDS.getConverterTo(BCUnits.MRad).convert(3.6))
+            .isEqualTo(1, within(1e-5));
+    }
+
+    @Test
+    public void cmPer100Meters()
+    {
+        assertThat(BCUnits.MIL.getConverterTo(BCUnits.CENTIMETERS_PER_100METRES).convert(1))
+            .isEqualTo(9.817480196, within(1e-5));
+    }
+
+    @Test
     public void grain()
     {
         assertThat(CLDR.POUND.getConverterTo(BCUnits.GRAIN).convert(1))
             .isEqualTo(7000, within(1e-5));
-        assertThat(BCUnits.GRAIN.getConverterTo(SI.GRAM).convert(12))
+        
+            assertThat(BCUnits.GRAIN.getConverterTo(SI.GRAM).convert(12))
             .isEqualTo(0.777587, within(1e-5));
+    }
+
+    @Test
+    public void fps()
+    {
+        assertThat(SI.METRE_PER_SECOND.getConverterTo(BCUnits.FEET_PER_SECOND).convert(290))
+            .isEqualTo(951.444, within(1e-3));
     }
 }

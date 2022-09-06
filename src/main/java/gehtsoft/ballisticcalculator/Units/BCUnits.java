@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator;
+package gehtsoft.ballisticcalculator.Units;
 
 import javax.measure.*;
 import javax.measure.quantity.*;
@@ -8,6 +8,7 @@ import systems.uom.unicode.CLDR;
 import tech.units.indriya.function.MultiplyConverter;
 import tech.units.indriya.unit.TransformedUnit;
 
+/** Ballistic Calculator specific units */
 public final class BCUnits {
     /** 
      * Mass: One grain (1/7000 of pound) 
@@ -44,4 +45,18 @@ public final class BCUnits {
     public static final Unit<Angle> MRad = 
         new TransformedUnit<Angle>("mrad", CLDR.RADIAN,
                                    MultiplyConverter.ofRational(1, 1000));
+
+    /**
+     * Inches per 100 yards
+     */                    
+    public static final Unit<Angle> INCHES_PER_100YARDS =
+        new TransformedUnit<Angle>("in/100yd", CLDR.RADIAN,
+                                   new AtanConverter(3600.0));
+
+    /**
+     * Cm per 100 meters
+     */                    
+    public static final Unit<Angle> CENTIMETERS_PER_100METRES =
+        new TransformedUnit<Angle>("cm/100m", CLDR.RADIAN,
+                                   new AtanConverter(10000));
 }

@@ -3,6 +3,7 @@ package gehtsoft.ballisticcalculator;
 import org.junit.jupiter.api.Test;
 
 import gehtsoft.ballisticcalculator.Drag.*;
+import gehtsoft.ballisticcalculator.Units.*;
 import si.uom.SI;
 
 import static org.assertj.core.api.Assertions.*;
