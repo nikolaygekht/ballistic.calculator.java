@@ -1,6 +1,7 @@
 package gehtsoft.ballisticcalculator;
 
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import gehtsoft.ballisticcalculator.Data.BallisticCoefficient;
 import gehtsoft.ballisticcalculator.Data.BallisticCoefficientValueType;
@@ -9,7 +10,7 @@ import gehtsoft.ballisticcalculator.Drag.DragTableId;
 import gehtsoft.ballisticcalculator.Drag.DrgFile;
 import tech.units.indriya.quantity.Quantities;
 
-import static org.assertj.core.api.Assertions.*;
+
 
 import java.io.IOException;
 

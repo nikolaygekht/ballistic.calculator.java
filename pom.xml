@@ -5,7 +5,7 @@
  <artifactId>gehtsoft.ballisticcalculator</artifactId>
  <version>1.0.1</version>
  <name>gehtsoft.ballisticcalculator</name>
- <!-- <url>http://docs.gehtsoftusa.com/pricesourceapi/web-content.html#index.html</url> -->
+ <url>https://github.com/nikolaygekht/ballistic.calculator.java</url>
  <properties>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   <maven.compiler.release>17</maven.compiler.release>
