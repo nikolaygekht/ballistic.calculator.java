@@ -5,7 +5,8 @@
         "CLDR",
         "milliradian",
         "mrad",
-        "assertj"
+        "assertj",
+        "Wobus"
 
     ],
     "java.configuration.updateBuildConfiguration": "automatic"
