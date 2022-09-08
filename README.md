@@ -1,7 +1,7 @@
 # Ballistic Calculator .Java
 
 This is Java port of [.NET Ballistic Calculator library](https://github.com/gehtsoft-usa/BallisticCalculator1). Please
-check this report for additional information about the library.
+check the original repository for additional information about the library.
 
 The purpose of the project is primarily keep my rudimental java skills at minimum level :-).
 
