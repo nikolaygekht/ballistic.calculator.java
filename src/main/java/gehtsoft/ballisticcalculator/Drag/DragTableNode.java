@@ -3,7 +3,7 @@ package gehtsoft.ballisticcalculator.Drag;
 /**
  * A node of a drag table for polynomial table approximation
  */
-class DragTableNode implements IDragTableNode {
+public class DragTableNode implements IDragTableNode {
     private double mMach;
     private double mDragCoefficient;
     private double mA, mB, mC;

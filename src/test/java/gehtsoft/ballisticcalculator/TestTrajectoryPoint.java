@@ -7,6 +7,7 @@ import gehtsoft.ballisticcalculator.Units.*;
 import si.uom.SI;
 import systems.uom.unicode.*;
 import tech.units.indriya.quantity.Quantities;
+import tech.units.indriya.unit.Units;
 
 public class TestTrajectoryPoint {
 
@@ -18,7 +19,8 @@ public class TestTrajectoryPoint {
             Quantities.getQuantity(1059.7, BCUnits.FEET_PER_SECOND),
             0.95,
             Quantities.getQuantity(-9.88, CLDR.INCH),
-            Quantities.getQuantity(-14.38, CLDR.INCH));           
+            Quantities.getQuantity(-14.38, CLDR.INCH),
+            Quantities.getQuantity(0, Units.SECOND));
 
         assertThat(UnitUtils.in(tp.getEnergy(), SI.JOULE))
             .isEqualTo(108.0, within(5e-1));

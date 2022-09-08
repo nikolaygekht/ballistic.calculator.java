@@ -5,6 +5,7 @@ import javax.measure.quantity.*;
 
 import gehtsoft.ballisticcalculator.Units.UnitUtils;
 import si.uom.SI;
+import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
 /** The atmosphere data */
@@ -74,6 +75,15 @@ public class Atmosphere {
 
         mSpeedOfSound = getSpeedOfSound(UnitUtils.in(temperature, SI.KELVIN));
         mDensity = calculateDensity(UnitUtils.in(temperature, SI.KELVIN), UnitUtils.in(pressure, SI.PASCAL), humidity);
+    }
+
+    /** Constructor for a default atmosphere */
+    public Atmosphere() {
+        this(Quantities.getQuantity(0, CLDR.FOOT),
+             Quantities.getQuantity(29.95, CLDR.INCH_HG),
+             false,
+             Quantities.getQuantity(59, CLDR.FAHRENHEIT),
+             0.78 );            
     }
 
     /** Standard atmosphere density.

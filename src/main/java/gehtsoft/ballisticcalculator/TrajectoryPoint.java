@@ -19,6 +19,7 @@ public class TrajectoryPoint
     private Quantity<Energy> mEnergy;
     private Quantity<Angle> mHold;
     private Quantity<Angle> mWindageAdjustment;
+    private Quantity<Time> mTime;
 
     /**
      * The distance from the start of the trajectory.
@@ -81,6 +82,13 @@ public class TrajectoryPoint
         return mWindageAdjustment;
     }
 
+    /**
+     * Sight adjustment to the windage.
+     */
+    public Quantity<Time> getFlightTime() {
+        return mTime;
+    }
+
     /** 
      * Constructor 
      */
@@ -89,13 +97,15 @@ public class TrajectoryPoint
                            final Quantity<Speed> velocity, 
                            final double mach, 
                            final Quantity<Length> drop, 
-                           final Quantity<Length> windage) {
+                           final Quantity<Length> windage, 
+                           Quantity<Time> time) {
         mDistance = distance;
         mVelocity = velocity;
         mMach = mach;
         mDrop = drop;
         mWindage = windage;
         mEnergy = calculateEnergy(bulletWeight, velocity);
+        mTime = time;
 
         if (distance.getValue().doubleValue() > 0) {
             mHold = calculateAngle(distance, drop);
