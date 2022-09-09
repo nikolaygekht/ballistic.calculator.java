@@ -90,7 +90,7 @@ public class Atmosphere {
      * 
      * The value is expressed in in kg/m^3 
      */
-    public static final double STANDARD_DENSITY = 0.076474; 
+    public static final double STANDARD_DENSITY = 1.224995;
 
     // https://www.omnicalculator.com/physics/air-density
     // http://www.emd.dk/files/windpro/WindPRO_AirDensity.pdf
@@ -180,6 +180,7 @@ public class Atmosphere {
                                   UnitUtils.in(mTemperature, SI.KELVIN),
                                   UnitUtils.in(mAltitude, SI.METRE),
                                   UnitUtils.in(altitude, SI.METRE));
+
         var d = calculateDensity(t, p, mHumidity);
         return d / STANDARD_DENSITY;
     }

@@ -28,14 +28,12 @@ public class TrajectoryCalculator {
     private static final double PIR = 2.08551e-04;
 
     /** 
-         * Calculates the sight angle for the specified zero distance
-        */
-    public Quantity<Angle> calculateSightAngle(Projectile ammunition, Weapon rifle, Atmosphere atmosphere) {
-        
+      * Calculates the sight angle for the specified zero distance
+      */
+    public Quantity<Angle> calculateSightAngle(Projectile ammunition, Weapon rifle, Atmosphere atmosphere) {       
         var rangeTo = rifle.getZeroingInformation().getZeroDistance().multiply(2);
         var step = rifle.getZeroingInformation().getZeroDistance().multiply(0.01);
         var calculationStep = getCalculationStep(step);
-
         var dragTable = ammunition.getBallisticCoefficient().getDragTable();
 
         if (atmosphere == null)
@@ -48,9 +46,9 @@ public class TrajectoryCalculator {
         Quantity<Speed> mach = Quantities.getQuantity(1, SI.METRE_PER_SECOND);
 
         var sightAngle = Quantities.getQuantity(150, BCUnits.MOA);
-        var barrelAzimuth = Quantities.getQuantity(150, SI.RADIAN);
+        var barrelAzimuth = Quantities.getQuantity(0, SI.RADIAN);
 
-        for (int approximation = 0; approximation < 100; approximation++)        {
+        for (int approximation = 0; approximation < 100; approximation++) {
             var barrelElevation = sightAngle;
 
             var velocity = ammunition.getMuzzleVelocity();
@@ -65,9 +63,11 @@ public class TrajectoryCalculator {
                 Quantities.getQuantity(0, SI.METRE));
 
             var velocityVector = new QuantityVector<Speed>(
-                velocity.multiply(Math.cos(UnitUtils.in(barrelElevation, SI.RADIAN))).multiply(Math.cos(UnitUtils.in(barrelAzimuth, SI.RADIAN))),
+                velocity.multiply(Math.cos(UnitUtils.in(barrelElevation, SI.RADIAN)))
+                        .multiply(Math.cos(UnitUtils.in(barrelAzimuth, SI.RADIAN))),
                 velocity.multiply(Math.sin(UnitUtils.in(barrelElevation, SI.RADIAN))),
-                velocity.multiply(Math.cos(UnitUtils.in(barrelElevation, SI.RADIAN))).multiply(Math.sin(UnitUtils.in(barrelAzimuth, SI.RADIAN))));
+                velocity.multiply(Math.cos(UnitUtils.in(barrelElevation, SI.RADIAN)))
+                        .multiply(Math.sin(UnitUtils.in(barrelAzimuth, SI.RADIAN))));
 
             var maximumRange = rangeTo;
             Quantity<Length> lastAtAltitude = Quantities.getQuantity(-100000, SI.METRE);
@@ -76,12 +76,11 @@ public class TrajectoryCalculator {
             double adjustBallisticFactorForVelocityUnits = UnitUtils.in(Quantities.getQuantity(1, velocity.getUnit()), BCUnits.FEET_PER_SECOND);
             double ballisticFactor = 1.0 / ammunition.getBallisticCoefficientValue();
             var accumulatedFactor = PIR * adjustBallisticFactorForVelocityUnits * ballisticFactor;
-            
+
             var earthGravity = Quantities.getQuantity(9.80665, SI.METRE_PER_SECOND).to(velocity.getUnit());
             
             //run all the way down the range
-            while (UnitUtils.compare(rangeVector.getX(), maximumRange) <= 0)
-            {
+            while (UnitUtils.compare(rangeVector.getX(), maximumRange) <= 0) {
                 var alt = alt0.add(rangeVector.getY());
 
                 Quantity<Length> currentAltDelta = lastAtAltitude.subtract(alt);
@@ -100,7 +99,6 @@ public class TrajectoryCalculator {
                     break;
 
                 double deltaTime = calculateTravelTime(calculationStep, velocityVector.getX());
-
                 double currentMach = UnitUtils.divide(velocity, mach);
 
                 //find Mach node for the first time
@@ -111,8 +109,9 @@ public class TrajectoryCalculator {
                 while (dragTableNode.getPrevious() != null && dragTableNode.getPrevious().getMach() > currentMach)
                     dragTableNode = dragTableNode.getPrevious();
 
+                var cd = dragTableNode.calculateDrag(currentMach);
                 drag = accumulatedFactor * densityFactor * 
-                       dragTableNode.calculateDrag(currentMach) * 
+                       cd *  
                        velocity.getValue().doubleValue();
 
                 velocityVector = new QuantityVector<Speed>(
@@ -120,7 +119,6 @@ public class TrajectoryCalculator {
                     velocityVector.getY().subtract(velocityVector.getY().multiply(deltaTime * drag))
                                          .subtract(earthGravity.multiply(deltaTime)),
                     velocityVector.getZ().subtract(velocityVector.getZ().multiply(deltaTime * drag)));
-
 
                 var deltaRangeVector = new QuantityVector<Length>(calculationStep,
                         Quantities.getQuantity(UnitUtils.in(velocityVector.getY(), SI.METRE_PER_SECOND) * deltaTime, SI.METRE),
@@ -131,15 +129,14 @@ public class TrajectoryCalculator {
                 if (UnitUtils.compare(rangeVector.getX(), rifle.getZeroingInformation().getZeroDistance()) >= 0) {
                     if (Math.abs(UnitUtils.in(rangeVector.getY(), SI.METRE)) < 0.0001)
                         return sightAngle;
-
-                    sightAngle.subtract(Quantities.getQuantity(UnitUtils.in(rangeVector.getY(), SI.METRE) / 100 / UnitUtils.in(rifle.getZeroingInformation().getZeroDistance(), SI.METRE) * 100,
-                                                               BCUnits.CENTIMETERS_PER_100METRES));                    
+                    var adj = Quantities.getQuantity(UnitUtils.in(rangeVector.getY(), SI.METRE) * 100 / (UnitUtils.in(rifle.getZeroingInformation().getZeroDistance(), SI.METRE) / 100),
+                              BCUnits.CENTIMETERS_PER_100METRES);
+                    sightAngle = sightAngle.subtract(adj);
                     break;
                 }
 
                 velocity = velocityVector.getMagnitude();
                 time += calculateTravelTime(deltaRangeVector.getMagnitude(), velocity);
-
             }
         }
         throw new IllegalArgumentException("Cannot find zero parameters for the specified zeroing information");
@@ -317,15 +314,8 @@ public class TrajectoryCalculator {
 
     /** Gets a calculation step */
     private Quantity<Length> getCalculationStep(Quantity<Length> step) {
-        step.divide(2);      //do it twice for increased accuracy of velocity calculation and 10 times per step
-
-        var stepValue = UnitUtils.in(step, mMaximumCalculationStepSize.getUnit());
-        if (stepValue > mMaximumCalculationStepSize.getValue().doubleValue())
-        {
-            int stepOrder = (int)Math.floor(Math.log10(stepValue));
-            int maximumOrder = (int)Math.floor(Math.log10(mMaximumCalculationStepSize.getValue().doubleValue()));
-            step.divide(Math.pow(10, stepOrder - maximumOrder + 1));
-        }
+        while (UnitUtils.compare(step, mMaximumCalculationStepSize) > 0)
+            step = step.divide(2);      //do it twice for increased accuracy of velocity calculation and 10 times per step
         return step;
     }
 

@@ -53,4 +53,24 @@ public class TestAtmosphere {
             assertThat(UnitUtils.in(atm.getPressure(), SI.PASCAL))
                       .isEqualTo(expectedPressure, within(5e-2));                   
     }
+
+    @Test
+    public void densityCalculation() {
+      Atmosphere atm = new Atmosphere();
+      var t = atm.getTemperatureAtAltitude(atm.getAltitude());
+      assertThat(UnitUtils.compare(atm.getTemperature(), 
+                                   Quantities.getQuantity(t, SI.KELVIN))).isEqualTo(0);
+
+      t = atm.getTemperatureAtAltitude(Quantities.getQuantity(1000, SI.METRE));       
+      var delta = t - UnitUtils.in(atm.getTemperature(), SI.KELVIN);
+      assertThat(delta).isEqualTo(-6.5, within(0.1));
+
+      var ss = atm.getSpeedOfSound(t);
+      assertThat(UnitUtils.in(ss, SI.METRE_PER_SECOND))
+              .isEqualTo(336.2, within(0.1));
+
+      var df = atm.getDensityFactorForTemperature(Quantities.getQuantity(1000, SI.METRE), t);
+      assertThat(df).isEqualTo(0.83370452858203414996288047512992, within(0.1));
+
+    }
 }

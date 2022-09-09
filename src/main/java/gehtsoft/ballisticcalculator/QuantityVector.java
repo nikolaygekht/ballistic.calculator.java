@@ -52,7 +52,7 @@ class QuantityVector<T extends Quantity<T>> {
         Unit<T> t = a.getUnit();
         if (b.getUnit() != t) {
             return Quantities.getQuantity(a.getValue().doubleValue() +
-                                   UnitUtils.in(b, b.getUnit()), t);
+                                   UnitUtils.in(b, t), t);
         } else {
             return Quantities.getQuantity(a.getValue().doubleValue() +
                                    b.getValue().doubleValue(), t);        
