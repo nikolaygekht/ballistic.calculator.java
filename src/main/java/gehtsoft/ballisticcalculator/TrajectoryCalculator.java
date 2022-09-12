@@ -33,73 +33,76 @@ public class TrajectoryCalculator {
     public Quantity<Angle> calculateSightAngle(Projectile ammunition, Weapon rifle, Atmosphere atmosphere) {       
         var rangeTo = rifle.getZeroingInformation().getZeroDistance().multiply(2);
         var step = rifle.getZeroingInformation().getZeroDistance().multiply(0.01);
-        var calculationStep = getCalculationStep(step);
+        var calculationStep = UnitUtils.in(getCalculationStep(step), CLDR.FOOT);
         var dragTable = ammunition.getBallisticCoefficient().getDragTable();
+
+        //calculation in imperial units:
+        //distance & altitude - feet
+        //velocity - fps
+        //angles - radians
 
         if (atmosphere == null)
             atmosphere = new Atmosphere();
 
-        var alt0 = atmosphere.getAltitude();
-        var altDelta = Quantities.getQuantity(1, SI.METRE);
+        var alt0 = UnitUtils.in(atmosphere.getAltitude(), CLDR.FOOT);
+        var altDelta = 12.0;    //12 feet
 
         double densityFactor = 0, drag;
-        Quantity<Speed> mach = Quantities.getQuantity(1, SI.METRE_PER_SECOND);
+        var mach = 0.0;
 
-        var sightAngle = Quantities.getQuantity(150, BCUnits.MOA);
-        var barrelAzimuth = Quantities.getQuantity(0, SI.RADIAN);
+        var sightAngle = UnitUtils.in(Quantities.getQuantity(150, BCUnits.MOA), SI.RADIAN);
+        var barrelAzimuth = 0;  //0 radians
+
+        var zeroDistance = UnitUtils.in(rifle.getZeroingInformation().getZeroDistance(), CLDR.FOOT);
 
         for (int approximation = 0; approximation < 100; approximation++) {
             var barrelElevation = sightAngle;
 
-            var velocity = ammunition.getMuzzleVelocity();
-            double time = 0;
+            var velocity = UnitUtils.in(ammunition.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND);
+            //double time = 0;
 
             //x - distance towards target,
             //y - drop and
             //z - windage
-            var rangeVector = new QuantityVector<Length>(
-                Quantities.getQuantity(0, SI.METRE),
-                rifle.getZeroingInformation().getSightHeight().negate(),
-                Quantities.getQuantity(0, SI.METRE));
+            var rangeVector = new Vector(
+                0,
+                UnitUtils.in(rifle.getZeroingInformation().getSightHeight().negate(), CLDR.FOOT),
+                0);
 
-            var velocityVector = new QuantityVector<Speed>(
-                velocity.multiply(Math.cos(UnitUtils.in(barrelElevation, SI.RADIAN)))
-                        .multiply(Math.cos(UnitUtils.in(barrelAzimuth, SI.RADIAN))),
-                velocity.multiply(Math.sin(UnitUtils.in(barrelElevation, SI.RADIAN))),
-                velocity.multiply(Math.cos(UnitUtils.in(barrelElevation, SI.RADIAN)))
-                        .multiply(Math.sin(UnitUtils.in(barrelAzimuth, SI.RADIAN))));
+            var velocityVector = new Vector(
+                velocity * Math.cos(barrelElevation) * Math.cos(barrelAzimuth),
+                velocity * Math.sin(barrelElevation),
+                velocity * Math.cos(barrelElevation) * Math.sin(barrelAzimuth));
 
             var maximumRange = rangeTo;
-            Quantity<Length> lastAtAltitude = Quantities.getQuantity(-100000, SI.METRE);
+            var lastAtAltitude = -10000.0;
             IDragTableNode dragTableNode = null;
 
-            double adjustBallisticFactorForVelocityUnits = UnitUtils.in(Quantities.getQuantity(1, velocity.getUnit()), BCUnits.FEET_PER_SECOND);
             double ballisticFactor = 1.0 / ammunition.getBallisticCoefficientValue();
-            var accumulatedFactor = PIR * adjustBallisticFactorForVelocityUnits * ballisticFactor;
+            var accumulatedFactor = PIR * ballisticFactor;
+            var earthGravity = 32.17405;
+            var _maximumRange = UnitUtils.in(maximumRange, CLDR.FOOT);
+            var _maximumDrop = UnitUtils.in(mMaximumDrop, CLDR.FOOT);
+            var _minimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
 
-            var earthGravity = Quantities.getQuantity(9.80665, SI.METRE_PER_SECOND).to(velocity.getUnit());
-            
             //run all the way down the range
-            while (UnitUtils.compare(rangeVector.getX(), maximumRange) <= 0) {
-                var alt = alt0.add(rangeVector.getY());
+            while (rangeVector.getX() <= _maximumRange) {
+                var alt = alt0 + rangeVector.getY();
 
-                Quantity<Length> currentAltDelta = lastAtAltitude.subtract(alt);
-                if (currentAltDelta.getValue().doubleValue() < 0)
-                    currentAltDelta = currentAltDelta.negate();
-                
-                if (UnitUtils.compare(currentAltDelta, altDelta) > 0) {
-                    var t = atmosphere.getTemperatureAtAltitude(alt);
-                    densityFactor = atmosphere.getDensityFactorForTemperature(alt, t);
-                    mach = atmosphere.getSpeedOfSound(t);
+                if (Math.abs(alt - lastAtAltitude) > altDelta) {
+                    var a = Quantities.getQuantity(alt, CLDR.FOOT);
+                    var t = atmosphere.getTemperatureAtAltitude(a);
+                    densityFactor = atmosphere.getDensityFactorForTemperature(a, t);
+                    mach = UnitUtils.in(atmosphere.getSpeedOfSound(t), BCUnits.FEET_PER_SECOND);
                     lastAtAltitude = alt;
                 }
 
-                if (UnitUtils.compare(velocity, mMinimumVelocity) <= 0 ||
-                    UnitUtils.compare(rangeVector.getY(), mMaximumDrop) <= 0)
+                if (velocity < _minimumVelocity ||
+                    rangeVector.getY() < _maximumDrop)
                     break;
 
-                double deltaTime = calculateTravelTime(calculationStep, velocityVector.getX());
-                double currentMach = UnitUtils.divide(velocity, mach);
+                double deltaTime = calculationStep / velocityVector.getX();
+                double currentMach = velocity / mach;
 
                 //find Mach node for the first time
                 if (dragTableNode == null)
@@ -112,31 +115,33 @@ public class TrajectoryCalculator {
                 var cd = dragTableNode.calculateDrag(currentMach);
                 drag = accumulatedFactor * densityFactor * 
                        cd *  
-                       velocity.getValue().doubleValue();
+                       velocity;
 
-                velocityVector = new QuantityVector<Speed>(
-                    velocityVector.getX().subtract(velocityVector.getX().multiply(deltaTime * drag)),
-                    velocityVector.getY().subtract(velocityVector.getY().multiply(deltaTime * drag))
-                                         .subtract(earthGravity.multiply(deltaTime)),
-                    velocityVector.getZ().subtract(velocityVector.getZ().multiply(deltaTime * drag)));
+                velocityVector = new Vector(
+                    velocityVector.getX() - velocityVector.getX() * (deltaTime * drag),
+                    velocityVector.getY() - velocityVector.getY() * (deltaTime * drag)
+                                          - (earthGravity * deltaTime),
+                    velocityVector.getZ() - velocityVector.getZ() * (deltaTime * drag));
 
-                var deltaRangeVector = new QuantityVector<Length>(calculationStep,
-                        Quantities.getQuantity(UnitUtils.in(velocityVector.getY(), SI.METRE_PER_SECOND) * deltaTime, SI.METRE),
-                        Quantities.getQuantity(UnitUtils.in(velocityVector.getZ(), SI.METRE_PER_SECOND) * deltaTime, SI.METRE));
+                var deltaRangeVector = new Vector(calculationStep,
+                        velocityVector.getY() * deltaTime,
+                        velocityVector.getZ() * deltaTime);
 
                 rangeVector = rangeVector.add(deltaRangeVector);
 
-                if (UnitUtils.compare(rangeVector.getX(), rifle.getZeroingInformation().getZeroDistance()) >= 0) {
-                    if (Math.abs(UnitUtils.in(rangeVector.getY(), SI.METRE)) < 0.0001)
-                        return sightAngle;
-                    var adj = Quantities.getQuantity(UnitUtils.in(rangeVector.getY(), SI.METRE) * 100 / (UnitUtils.in(rifle.getZeroingInformation().getZeroDistance(), SI.METRE) / 100),
+                if (Math.abs(rangeVector.getX() - zeroDistance) <= calculationStep) {
+                    if (Math.abs(rangeVector.getY()) < 0.0001)
+                        return Quantities.getQuantity(sightAngle, SI.RADIAN);
+
+                    var adj = Quantities.getQuantity(UnitUtils.in(Quantities.getQuantity(rangeVector.getY(), CLDR.FOOT), SI.METRE) * 100 / (UnitUtils.in(rifle.getZeroingInformation().getZeroDistance(), SI.METRE) / 100),
                               BCUnits.CENTIMETERS_PER_100METRES);
-                    sightAngle = sightAngle.subtract(adj);
+
+                    sightAngle = sightAngle - UnitUtils.in(adj, SI.RADIAN);
                     break;
                 }
 
                 velocity = velocityVector.getMagnitude();
-                time += calculateTravelTime(deltaRangeVector.getMagnitude(), velocity);
+                //time += deltaRangeVector.getMagnitude() / velocity;
             }
         }
         throw new IllegalArgumentException("Cannot find zero parameters for the specified zeroing information");

@@ -13,6 +13,7 @@ import tech.units.indriya.quantity.Quantities;
 import static org.assertj.core.api.Assertions.*;
 
 public class TestTrajectoryCalculator {
+
     @ParameterizedTest
     @CsvSource(value = { 
         "0.365, G1, 2600, fps, 100, yd, 5.674",
