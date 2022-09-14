@@ -69,4 +69,11 @@ public class TestUnits {
         assertThat(SI.METRE_PER_SECOND.getConverterTo(BCUnits.FEET_PER_SECOND).convert(290))
             .isEqualTo(951.444, within(1e-3));
     }
+
+    @Test
+    public void ftlb()
+    {
+        assertThat(SI.JOULE.getConverterTo(BCUnits.FOOT_POUND).convert(5.5))
+            .isEqualTo(4.056591821024985, within(1e-6));
+    }
 }

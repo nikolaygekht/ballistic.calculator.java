@@ -90,7 +90,7 @@ public class TrajectoryPoint
     }
 
     /** 
-     * Constructor 
+     * Constructor (for calculation)
      */
     public TrajectoryPoint(final Quantity<Mass> bulletWeight,
                            final Quantity<Length> distance, 
@@ -114,6 +114,29 @@ public class TrajectoryPoint
             mHold = null;
             mWindage = null;
         }
+    }
+
+    /** 
+     * Constructor (for serialization)
+     */
+    public TrajectoryPoint(final Quantity<Length> distance, 
+                           final Quantity<Speed> velocity, 
+                           final Quantity<Energy> energy, 
+                           final double mach, 
+                           final Quantity<Length> drop, 
+                           final Quantity<Angle> hold, 
+                           final Quantity<Length> windage, 
+                           final Quantity<Angle> windageAdjustment, 
+                           Quantity<Time> time) {
+        mDistance = distance;
+        mVelocity = velocity;
+        mMach = mach;
+        mDrop = drop;
+        mWindage = windage;
+        mEnergy = energy;
+        mTime = time;
+        mHold = hold;
+        mWindageAdjustment = windageAdjustment;
     }
     
     private static Quantity<Energy> calculateEnergy(Quantity<Mass> mass, Quantity<Speed> velocity) {

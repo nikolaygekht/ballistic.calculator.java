@@ -59,4 +59,8 @@ public final class BCUnits {
     public static final Unit<Angle> CENTIMETERS_PER_100METRES =
         new TransformedUnit<Angle>("cm/100m", CLDR.RADIAN,
                                    new AtanConverter(10000));
+
+    public static final Unit<Energy> FOOT_POUND = 
+        new TransformedUnit<Energy>("ft-lb", CLDR.JOULE,
+                                    MultiplyConverter.of(1.3558179483314004));
 }
