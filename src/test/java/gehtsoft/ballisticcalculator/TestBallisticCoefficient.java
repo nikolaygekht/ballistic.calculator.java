@@ -31,7 +31,7 @@ public class TestBallisticCoefficient {
 
     @Test
     public void customTableConstructor() throws IOException {
-        DrgFile table = TestDragTable.LoadDragTable("drg.txt");
+        DrgFile table = DrgFileLoader.loadDragTable("drg.txt");
         BallisticCoefficient bc = new BallisticCoefficient(1, 
                 BallisticCoefficientValueType.FormFactor, 
                 table);

@@ -111,6 +111,10 @@ public class TrajectoryLoader {
     private Unit<Length> getLengthUnit(String name) {
         if (name.equals("m"))
             return SI.METRE;
+        if (name.equals("mm"))
+            return CLDR.MILLIMETER;
+        if (name.equals("cm"))
+            return CLDR.CENTIMETER;
         if (name.equals("yd"))
             return CLDR.YARD;
         if (name.equals("ft") || name.equals("'"))

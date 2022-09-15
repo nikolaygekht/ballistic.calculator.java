@@ -69,18 +69,9 @@ public class TestDragTable {
         }
     }
 
-    public static DrgFile LoadDragTable(String resourceName) throws IOException {
-        ClassLoader classLoader = TestDragTable.class.getClassLoader();
-        File file = new File(classLoader.getResource(resourceName).getFile());
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                DrgFile drgFile = DrgFile.read(reader);
-                return drgFile;
-        }
-    }
-
     @Test
     public void TestReadDRG() throws IOException {
-        DrgFile drgFile = LoadDragTable("drg2.txt");
+        DrgFile drgFile = DrgFileLoader.loadDragTable("drg2.txt");
         assertThat(drgFile.getName()).isEqualTo("120mm Mortar (McCoy)");
         assertThat(UnitUtils.in(drgFile.getBulletWeight(), SI.GRAM)).isEqualTo(13585);
         assertThat(UnitUtils.in(drgFile.getBulletDiameter(), SI.METRE)).isEqualTo(0.11956);
