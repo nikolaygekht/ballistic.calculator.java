@@ -1,6 +1,7 @@
 package gehtsoft.ballisticcalculator.Tools;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import javax.measure.*;
@@ -45,7 +46,7 @@ public class TrajectoryLoader {
     public void load(String name, IDragTable customDragTable) throws IOException {
         ClassLoader classLoader = TrajectoryLoader.class.getClassLoader();
         File file = new File(classLoader.getResource(name).getFile());
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             load(reader, customDragTable);
         }
     }

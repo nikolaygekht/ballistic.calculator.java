@@ -23,14 +23,14 @@ public class TrajectoryCalculator {
     /** The minimum velocity to stop the calculation */
     private Quantity<Speed> mMinimumVelocity = Quantities.getQuantity(1, SI.METRE_PER_SECOND);
 
-    
-    /** PIR = (PI/8)*(RHO0/144) */ 
+
+    /** PIR = (PI/8)*(RHO0/144) */
     private static final double PIR = 2.08551e-04;
 
-    /** 
+    /**
       * Calculates the sight angle for the specified zero distance
       */
-    public Quantity<Angle> calculateSightAngle(Projectile ammunition, Weapon rifle, Atmosphere atmosphere) {       
+    public Quantity<Angle> calculateSightAngle(Projectile ammunition, Weapon rifle, Atmosphere atmosphere) {
         var rangeTo = rifle.getZeroingInformation().getZeroDistance().multiply(2);
         var step = rifle.getZeroingInformation().getZeroDistance().multiply(0.01);
         var calculationStep = UnitUtils.in(getCalculationStep(step), CLDR.FOOT);
@@ -113,8 +113,8 @@ public class TrajectoryCalculator {
                     dragTableNode = dragTableNode.getPrevious();
 
                 var cd = dragTableNode.calculateDrag(currentMach);
-                drag = accumulatedFactor * densityFactor * 
-                       cd *  
+                drag = accumulatedFactor * densityFactor *
+                       cd *
                        velocity;
 
                 velocityVector = new Vector(
@@ -147,7 +147,6 @@ public class TrajectoryCalculator {
         throw new IllegalArgumentException("Cannot find zero parameters for the specified zeroing information");
     }
 
-    /* 
     /// <summary>
     /// Calculates the trajectory for the specified parameters.
     /// </summary>
@@ -156,29 +155,31 @@ public class TrajectoryCalculator {
     /// <param name="atmosphere"></param>
     /// <param name="shot"></param>
     /// <param name="wind"></param>
-    /// <param name="dragTable">Custom drag table</param>
     /// <returns></returns>
-    public TrajectoryPoint[] Calculate(Ammunition ammunition, Rifle rifle, Atmosphere atmosphere, ShotParameters shot, Wind[] wind = null, DragTable dragTable = null)
+    public TrajectoryPoint[] calculate(Projectile ammunition, Weapon rifle, Atmosphere atmosphere, ShotParameters shot, Wind wind)
     {
-        Measurement<DistanceUnit> rangeTo = shot.MaximumDistance;
-        Measurement<DistanceUnit> step = shot.Step;
-        Measurement<DistanceUnit> calculationStep = GetCalculationStep(step);
+        var rangeTo = UnitUtils.in(shot.getMaximumDistance(), CLDR.FOOT);
+        var step = UnitUtils.in(shot.getStep(), CLDR.FOOT);
+        var calculationStep = UnitUtils.in(getCalculationStep(rifle.getZeroingInformation().getZeroDistance().multiply(0.01)), CLDR.FOOT);
+        var dragTable = ammunition.getBallisticCoefficient().getDragTable();
 
-        atmosphere ??= new Atmosphere();
+        if (atmosphere == null)
+            atmosphere = new Atmosphere();
 
-        dragTable = ValidateDragTable(ammunition, dragTable);
+        var alt0 = UnitUtils.in(atmosphere.getAltitude(), CLDR.FOOT);
+        var altDelta = 12.0;    //12 feet
 
-        Measurement<DistanceUnit> alt0 = atmosphere.Altitude;
-        Measurement<DistanceUnit> altDelta = new Measurement<DistanceUnit>(1, DistanceUnit.Meter);
         double densityFactor = 0, drag;
-        Measurement<VelocityUnit> mach = new Measurement<VelocityUnit>(0, VelocityUnit.MetersPerSecond);
+        var mach = 0.0;
 
         double stabilityCoefficient = 1;
-        bool calculateDrift;
+        Boolean calculateDrift;
 
-        if (rifle.Rifling != null && ammunition.BulletDiameter != null && ammunition.BulletLength != null)
+        if (rifle.getRifling() != null && 
+            ammunition.getBulletDiameter() != null && 
+            ammunition.getBulletLength() != null)
         {
-            stabilityCoefficient = CalculateStabilityCoefficient(ammunition, rifle, atmosphere);
+            stabilityCoefficient = calculateStabilityCoefficient(ammunition, rifle, atmosphere);
             calculateDrift = true;
         }
         else
@@ -186,136 +187,129 @@ public class TrajectoryCalculator {
             calculateDrift = false;
         }
 
-        TrajectoryPoint[] trajectoryPoints = new TrajectoryPoint[(int)(Math.Floor(rangeTo / step)) + 1];
+        TrajectoryPoint[] trajectoryPoints = new TrajectoryPoint[(int)(Math.floor(rangeTo / step)) + 1];
 
-        var barrelAzimuth = shot.BarrelAzymuth ?? new Measurement<AngularUnit>(0.0, AngularUnit.Radian);
-        var barrelElevation = shot.SightAngle;
-        if (shot.ShotAngle != null)
-            barrelElevation += shot.ShotAngle.Value;
+        double barrelAzimuth, barrelElevation = UnitUtils.in(shot.getSightAngle(), SI.RADIAN);
 
-        Measurement<VelocityUnit> velocity = ammunition.MuzzleVelocity;
-        TimeSpan time = new TimeSpan(0);
+        if (shot.getBarrelAzimuth() != null)
+            barrelAzimuth = UnitUtils.in(shot.getBarrelAzimuth(), SI.RADIAN);
+        else
+            barrelAzimuth = 0;
+
+        if (shot.getShotAngle() != null)
+            barrelElevation += UnitUtils.in(shot.getBarrelAzimuth(), SI.RADIAN);;
+
+        var velocity = UnitUtils.in(ammunition.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND);
+        double time = 0;
 
         int currentWind = 0;
-        Measurement<DistanceUnit> nextWindRange = new Measurement<DistanceUnit>(1e7, DistanceUnit.Meter);
-        Vector<VelocityUnit> windVector;
-        if (wind == null || wind.Length < 1)
+        Vector windVector;
+        if (wind == null)
         {
-            windVector = new Vector<VelocityUnit>();
+            windVector = new Vector(0, 0, 0);
         }
         else
         {
-            if (wind.Length > 1 && wind[0].MaximumRange != null)
-                nextWindRange = wind[0].MaximumRange.Value;
-            windVector = WindVector(shot, wind[0], velocity.Unit);
+            windVector = calculateWindVector(shot, wind, BCUnits.FEET_PER_SECOND);
         }
 
         //x - distance towards target,
         //y - drop and
         //z - windage
-        var rangeVector = new Vector<DistanceUnit>(new Measurement<DistanceUnit>(0, DistanceUnit.Meter),
-            -rifle.Sight.SightHeight,
-            new Measurement<DistanceUnit>(0, DistanceUnit.Meter));
+        var rangeVector = new Vector(0, 
+                                     UnitUtils.in(rifle.getZeroingInformation().getSightHeight(), CLDR.FOOT), 
+                                     0);
 
-        var velocityVector = new Vector<VelocityUnit>(velocity * barrelElevation.Cos() * barrelAzimuth.Cos(),
-                                                        velocity * barrelElevation.Sin(),
-                                                        velocity * barrelElevation.Cos() * barrelAzimuth.Sin());
+        var velocityVector = new Vector(velocity * Math.cos(barrelElevation) * Math.cos(barrelAzimuth),
+                                        velocity * Math.sin(barrelElevation),
+                                        velocity * Math.cos(barrelElevation) * Math.sin(barrelAzimuth));                                     
 
         int currentItem = 0;
-        Measurement<DistanceUnit> maximumRange = rangeTo + calculationStep;
-        Measurement<DistanceUnit> nextRangeDistance = new Measurement<DistanceUnit>(0, DistanceUnit.Meter);
+        var maximumRange = rangeTo + calculationStep;
+        var nextRangeDistance = 0;
 
-        Measurement<DistanceUnit> lastAtAltitude = new Measurement<DistanceUnit>(-1000000, DistanceUnit.Meter);
-        DragTableNode dragTableNode = null;
+        var lastAtAltitude = -1000000.0;
+        IDragTableNode dragTableNode = null;
 
-        double adjustBallisticFactorForVelocityUnits = Measurement<VelocityUnit>.Convert(1, velocity.Unit, VelocityUnit.FeetPerSecond);
-        double ballisicFactor = 1 / ammunition.GetBallisticCoefficient();
-        var accumulatedFactor = PIR * adjustBallisticFactorForVelocityUnits * ballisicFactor;
+        double ballisticFactor = 1.0 / ammunition.getBallisticCoefficientValue();
+        var accumulatedFactor = PIR * ballisticFactor;
+        var earthGravity = 32.17405;
 
-        var earthGravity = (new Measurement<VelocityUnit>(Measurement<AccelerationUnit>.Convert(1, AccelerationUnit.EarthGravity, AccelerationUnit.MeterPerSecondSquare),
-                                                                VelocityUnit.MetersPerSecond)).To(velocity.Unit);
-        
-        
+        var _maximumDrop = UnitUtils.in(mMaximumDrop, CLDR.FOOT);
+        var _minimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
 
         //run all the way down the range
-        while (rangeVector.X <= maximumRange)
+        while (rangeVector.getX() <= maximumRange)
         {
-            Measurement<DistanceUnit> alt = alt0 + rangeVector.Y;
+            var alt = alt0 + rangeVector.getY();
 
             //update density and Mach velocity each 10 feet of altitude
-            if (MeasurementMath.Abs(lastAtAltitude - alt) > altDelta)
+            if (Math.abs(lastAtAltitude - alt) > altDelta)
             {
-                atmosphere.AtAltitude(alt, out densityFactor, out mach);
+                var a = Quantities.getQuantity(alt, CLDR.FOOT);
+                var t = atmosphere.getTemperatureAtAltitude(a);
+                densityFactor = atmosphere.getDensityFactorForTemperature(a, t);
+                mach = UnitUtils.in(atmosphere.getSpeedOfSound(t), BCUnits.FEET_PER_SECOND);
                 lastAtAltitude = alt;
             }
 
-            if (velocity < MinimumVelocity || rangeVector.Y < -MaximumDrop)
+            if (velocity < _minimumVelocity || rangeVector.getY() < -_maximumDrop)
                 break;
 
-            if (rangeVector.X >= nextWindRange)
+            if (rangeVector.getX() >= nextRangeDistance)
             {
-                currentWind++;
-                windVector = WindVector(shot, wind[currentWind], velocity.Unit);
-
-                if (currentWind == wind.Length - 1 || wind[currentWind].MaximumRange == null)
-                    nextWindRange = new Measurement<DistanceUnit>(1e7, DistanceUnit.Meter);
-                else
-                    nextWindRange = wind[currentWind].MaximumRange.Value;
-            }
-
-            if (rangeVector.X >= nextRangeDistance)
-            {
-                var windage = rangeVector.Z;
+                var windage = rangeVector.getZ();
                 if (calculateDrift)
-                    windage += new Measurement<DistanceUnit>(1.25 * (stabilityCoefficient + 1.2) * Math.Pow(time.TotalSeconds, 1.83) * (rifle.Rifling.Direction == TwistDirection.Right ? 1 : -1), DistanceUnit.Inch);
+                    windage += (1.25 * (stabilityCoefficient + 1.2) * Math.pow(time, 1.83) * (rifle.getRifling().getTwistDirection() == TwistDirection.Right ? 1 : -1)) / 12;
 
                 trajectoryPoints[currentItem] = new TrajectoryPoint(
-                    time: time,
-                    weight: ammunition.Weight,
-                    distance: rangeVector.X,
-                    velocity: velocity,
-                    mach: velocity / mach,
-                    drop: rangeVector.Y,
-                    windage: windage);
+                    ammunition.getBulletWeight(),
+                    Quantities.getQuantity(rangeVector.getX(), CLDR.FOOT),
+                    Quantities.getQuantity(velocity, BCUnits.FEET_PER_SECOND),
+                    mach,
+                    Quantities.getQuantity(rangeVector.getY(), CLDR.FOOT),
+                    Quantities.getQuantity(rangeVector.getZ(), CLDR.FOOT),
+                    Quantities.getQuantity(time, CLDR.SECOND));
                 nextRangeDistance += step;
                 currentItem++;
-                if (currentItem == trajectoryPoints.Length)
+                if (currentItem == trajectoryPoints.length)
                     break;
             }
-
-            TimeSpan deltaTime = BallisticMath.TravelTime(calculationStep, velocityVector.X);
-
-            var velocityAdjusted = velocityVector - windVector;
-            velocity = velocityAdjusted.Magnitude;
+            var deltaTime = calculationStep / velocityVector.getX();
+            var velocityAdjusted = velocityVector.subtract(windVector);
+            velocity = velocityAdjusted.getMagnitude();
             double currentMach = velocity / mach;
 
             //find Mach node for the first time
-            dragTableNode ??= dragTable.Find(currentMach);
+            if (dragTableNode == null)
+                dragTableNode = dragTable.find(currentMach);
 
             //walk towards the beginning the table as velocity drops
-            while (dragTableNode.Mach > currentMach)
-                dragTableNode = dragTableNode.Previous;
+            while (dragTableNode.getPrevious() != null && dragTableNode.getPrevious().getMach() > currentMach)
+                dragTableNode = dragTableNode.getPrevious();
 
-            drag = accumulatedFactor * densityFactor * dragTableNode.CalculateDrag(currentMach) * velocity.Value;
+            var cd = dragTableNode.calculateDrag(currentMach);
+            drag = accumulatedFactor * densityFactor * 
+                    cd *  
+                    velocity;
 
-            velocityVector = new Vector<VelocityUnit>(
-                velocityVector.X - deltaTime.TotalSeconds * drag * velocityAdjusted.X,
-                velocityVector.Y - deltaTime.TotalSeconds * drag * velocityAdjusted.Y
-                                    - earthGravity * deltaTime.TotalSeconds,
-                velocityVector.Z - deltaTime.TotalSeconds * drag * velocityAdjusted.Z);
+            velocityVector = new Vector(
+                velocityVector.getX() - velocityAdjusted.getX() * (deltaTime * drag),
+                velocityVector.getY() - velocityAdjusted.getY() * (deltaTime * drag)
+                                        - (earthGravity * deltaTime),
+                velocityVector.getZ() - velocityAdjusted.getZ() * (deltaTime * drag));            
 
-            var deltaRangeVector = new Vector<DistanceUnit>(calculationStep,
-                    new Measurement<DistanceUnit>(velocityVector.Y.In(VelocityUnit.MetersPerSecond) * deltaTime.TotalSeconds, DistanceUnit.Meter),
-                    new Measurement<DistanceUnit>(velocityVector.Z.In(VelocityUnit.MetersPerSecond) * deltaTime.TotalSeconds, DistanceUnit.Meter));
+            var deltaRangeVector = new Vector(calculationStep,
+                velocityVector.getY() * deltaTime,
+                velocityVector.getZ() * deltaTime);
 
-            rangeVector += deltaRangeVector;
-            velocity = velocityVector.Magnitude;
-            time = time.Add(BallisticMath.TravelTime(deltaRangeVector.Magnitude, velocity));
+            rangeVector = rangeVector.add(deltaRangeVector);
+            velocity = velocityVector.getMagnitude();
+            time += deltaRangeVector.getMagnitude() / velocity;
         }
 
         return trajectoryPoints;
     }
-    */
 
     /** Gets a calculation step */
     private Quantity<Length> getCalculationStep(Quantity<Length> step) {
@@ -325,7 +319,7 @@ public class TrajectoryCalculator {
     }
 
     /** Calculates the vector of wind velocities */
-    private static QuantityVector<Speed> calculateWindVector(ShotParameters shot, Wind wind, Unit<Speed> units) {
+    private static Vector calculateWindVector(ShotParameters shot, Wind wind, Unit<Speed> units) {
         double sightCosine = Math.cos(UnitUtils.in(shot.getSightAngle(), SI.RADIAN));
         double sightSine = Math.sin(UnitUtils.in(shot.getSightAngle(), SI.RADIAN));
 
@@ -340,11 +334,11 @@ public class TrajectoryCalculator {
         if (wind != null)
         {
             rangeVelocity = Quantities.getQuantity(
-                UnitUtils.in(wind.getSpeed(), units) * 
+                UnitUtils.in(wind.getSpeed(), units) *
                 Math.cos(UnitUtils.in(wind.getDirection(), SI.RADIAN)), units);
 
             crossComponent = Quantities.getQuantity(
-                UnitUtils.in(wind.getSpeed(), units) * 
+                UnitUtils.in(wind.getSpeed(), units) *
                 Math.sin(UnitUtils.in(wind.getDirection(), SI.RADIAN)), units);
         }
         else
@@ -355,10 +349,10 @@ public class TrajectoryCalculator {
 
         Quantity<Speed> rangeFactor = rangeVelocity.negate().multiply(sightSine);
 
-        return new QuantityVector<Speed>(
-            rangeVelocity.multiply(sightCosine), 
-            rangeFactor.multiply(cantCosine).add(crossComponent.multiply(cantSine)), 
-            crossComponent.multiply(cantCosine).subtract(rangeFactor.multiply(cantSine)));
+        return new Vector(
+            rangeVelocity.multiply(sightCosine).getValue().doubleValue(),
+            rangeFactor.multiply(cantCosine).add(crossComponent.multiply(cantSine)).getValue().doubleValue(),
+            crossComponent.multiply(cantCosine).subtract(rangeFactor.multiply(cantSine)).getValue().doubleValue());
     }
 
     /** Returns a bullet stability coefficient */
@@ -367,7 +361,7 @@ public class TrajectoryCalculator {
         double diameter = UnitUtils.in(ammunitionInfo.getBulletDiameter(), Imperial.INCH);
         double length = UnitUtils.in(ammunitionInfo.getBulletLength(), Imperial.INCH);
         double twist = UnitUtils.in(rifleInfo.getRifling().getRiflingStep(), Imperial.INCH);
-        
+
         double sd = 30 * weight / (Math.pow(twist, 2) * Math.pow(diameter, 3) * length * (1 + Math.pow(length, 2)));
         double fv = Math.pow(UnitUtils.in(ammunitionInfo.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND) / 2800, 1.0 / 3.0);
         double ftp = 1;
