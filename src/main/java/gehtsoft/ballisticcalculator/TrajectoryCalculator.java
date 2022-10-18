@@ -202,7 +202,6 @@ public class TrajectoryCalculator {
         var velocity = UnitUtils.in(ammunition.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND);
         double time = 0;
 
-        int currentWind = 0;
         Vector windVector;
         if (wind == null)
         {
@@ -217,13 +216,12 @@ public class TrajectoryCalculator {
         //y - drop and
         //z - windage
         var rangeVector = new Vector(0, 
-                                     UnitUtils.in(rifle.getZeroingInformation().getSightHeight(), CLDR.FOOT), 
+                                     -UnitUtils.in(rifle.getZeroingInformation().getSightHeight(), CLDR.FOOT), 
                                      0);
 
         var velocityVector = new Vector(velocity * Math.cos(barrelElevation) * Math.cos(barrelAzimuth),
                                         velocity * Math.sin(barrelElevation),
                                         velocity * Math.cos(barrelElevation) * Math.sin(barrelAzimuth));                                     
-
         int currentItem = 0;
         var maximumRange = rangeTo + calculationStep;
         var nextRangeDistance = 0;
@@ -253,22 +251,25 @@ public class TrajectoryCalculator {
                 lastAtAltitude = alt;
             }
 
-            if (velocity < _minimumVelocity || rangeVector.getY() < -_maximumDrop)
+            if (velocity < _minimumVelocity || 
+                rangeVector.getY() < _maximumDrop)
                 break;
 
             if (rangeVector.getX() >= nextRangeDistance)
             {
                 var windage = rangeVector.getZ();
                 if (calculateDrift)
-                    windage += (1.25 * (stabilityCoefficient + 1.2) * Math.pow(time, 1.83) * (rifle.getRifling().getTwistDirection() == TwistDirection.Right ? 1 : -1)) / 12;
+                    windage += (1.25 * (stabilityCoefficient + 1.2) * 
+                                       Math.pow(time, 1.83) * 
+                                       (rifle.getRifling().getTwistDirection() == TwistDirection.Right ? 1 : -1)) / 12.0;
 
                 trajectoryPoints[currentItem] = new TrajectoryPoint(
                     ammunition.getBulletWeight(),
                     Quantities.getQuantity(rangeVector.getX(), CLDR.FOOT),
                     Quantities.getQuantity(velocity, BCUnits.FEET_PER_SECOND),
-                    mach,
+                    velocity / mach,
                     Quantities.getQuantity(rangeVector.getY(), CLDR.FOOT),
-                    Quantities.getQuantity(rangeVector.getZ(), CLDR.FOOT),
+                    Quantities.getQuantity(windage, CLDR.FOOT),
                     Quantities.getQuantity(time, CLDR.SECOND));
                 nextRangeDistance += step;
                 currentItem++;
@@ -359,8 +360,8 @@ public class TrajectoryCalculator {
     private static double calculateStabilityCoefficient(Projectile ammunitionInfo, Weapon rifleInfo, Atmosphere atmosphere) {
         double weight = UnitUtils.in(ammunitionInfo.getBulletWeight(), BCUnits.GRAIN);
         double diameter = UnitUtils.in(ammunitionInfo.getBulletDiameter(), Imperial.INCH);
-        double length = UnitUtils.in(ammunitionInfo.getBulletLength(), Imperial.INCH);
-        double twist = UnitUtils.in(rifleInfo.getRifling().getRiflingStep(), Imperial.INCH);
+        double length = UnitUtils.in(ammunitionInfo.getBulletLength(), Imperial.INCH) / diameter;
+        double twist = UnitUtils.in(rifleInfo.getRifling().getRiflingStep(), Imperial.INCH) / diameter;
 
         double sd = 30 * weight / (Math.pow(twist, 2) * Math.pow(diameter, 3) * length * (1 + Math.pow(length, 2)));
         double fv = Math.pow(UnitUtils.in(ammunitionInfo.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND) / 2800, 1.0 / 3.0);
@@ -373,9 +374,5 @@ public class TrajectoryCalculator {
             ftp = ((ft + 460.0) / (59.0 + 460.0)) * (29.92 / pt);
         }
         return sd * fv * ftp;
-    }
-
-    private double calculateTravelTime(Quantity<Length> range, Quantity<Speed> velocity) {
-        return UnitUtils.in(range, SI.METRE) / UnitUtils.in(velocity, SI.METRE_PER_SECOND);
     }
 }

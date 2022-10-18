@@ -112,7 +112,7 @@ public class TrajectoryPoint
             mWindageAdjustment = calculateAngle(distance, windage);
         } else {
             mHold = null;
-            mWindage = null;
+            mWindageAdjustment = null;
         }
     }
 

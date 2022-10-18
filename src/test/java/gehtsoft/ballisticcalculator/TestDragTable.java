@@ -8,9 +8,6 @@ import si.uom.SI;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 public class TestDragTable {

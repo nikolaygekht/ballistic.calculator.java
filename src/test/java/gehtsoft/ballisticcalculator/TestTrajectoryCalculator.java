@@ -5,12 +5,15 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import gehtsoft.ballisticcalculator.Data.*;
 import gehtsoft.ballisticcalculator.Drag.*;
+import gehtsoft.ballisticcalculator.Tools.TrajectoryLoader;
 import gehtsoft.ballisticcalculator.Units.*;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
 import static org.assertj.core.api.Assertions.*;
+
+import java.io.IOException;
 
 public class TestTrajectoryCalculator {
 
@@ -36,5 +39,79 @@ public class TestTrajectoryCalculator {
         var tc = new TrajectoryCalculator();
         var sa = tc.calculateSightAngle(ammo, rifle, atmosphere);
         assertThat(UnitUtils.in(sa, BCUnits.MOA)).isEqualTo(moaSightAngle, within(0.05));
+    }
+
+    private void assertThatTrajectoryPointsMatch(TrajectoryPoint value, TrajectoryPoint expected, double moaAccuracy, double velocityAccuracy, double energyAccuracy, double timeAccuracy, Boolean ignoreMach) {
+        assertThat(UnitUtils.in(value.getDistance(), expected.getDistance().getUnit()))
+            .isEqualTo(expected.getDistance().getValue().doubleValue(), within(0.5));
+
+        assertThat(UnitUtils.in(value.getVelocity(), expected.getVelocity().getUnit()))
+            .isEqualTo(expected.getVelocity().getValue().doubleValue(), within(velocityAccuracy));            
+
+        if (!ignoreMach)
+            assertThat(value.getMach()).isEqualTo(expected.getMach(), within(0.005));
+
+        assertThat(UnitUtils.in(value.getFlightTime(), SI.SECOND))
+            .isEqualTo(UnitUtils.in(expected.getFlightTime(), SI.SECOND), within(timeAccuracy));            
+
+        if (energyAccuracy != 0) {
+            var ev = UnitUtils.in(value.getEnergy(), expected.getEnergy().getUnit());
+            assertThat(UnitUtils.in(value.getEnergy(), expected.getEnergy().getUnit()))
+                .isEqualTo(expected.getEnergy().getValue().doubleValue(), within(ev * energyAccuracy / 100));
+        }
+
+        var toleranceForDrop = UnitUtils.in(Quantities.getQuantity(moaAccuracy, BCUnits.MOA), BCUnits.INCHES_PER_100YARDS) * 
+                               (UnitUtils.in(value.getDistance(), CLDR.YARD) / 100);
+
+        if (toleranceForDrop < 1e-7)
+            toleranceForDrop = 1e-7;
+
+        assertThat(UnitUtils.in(value.getDrop(), CLDR.INCH))
+            .isEqualTo(UnitUtils.in(expected.getDrop(), CLDR.INCH), within(toleranceForDrop));
+
+        assertThat(UnitUtils.in(value.getWindage(), CLDR.INCH))
+            .isEqualTo(UnitUtils.in(expected.getWindage(), CLDR.INCH), within(toleranceForDrop));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { 
+        "g1_nowind.txt, 0.1, 0.5, 1, 0.005, false,  ",
+        "g1_wind.txt, 0.1, 0.5, 1, 0.005, false,  ",
+        "g1_wind_cold.txt, 0.1, 0.5, 1, 0.005, false,  ",
+        "g1_wind_hot.txt, 0.1, 0.5, 1, 0.005, false,  ",
+        "g1_twist.txt, 0.1, 0.5, 1, 0.005, false,  ",
+        "g7_nowind.txt, 0.1, 0.5, 1, 0.005, false,  ",
+        "custom.txt, 0.75, 10, 0, 0.05, true, drg.txt",
+        "custom2.txt, 0.75, 10, 0, 0.05, true, drg2.txt",
+    })
+    public void trajectory(String testFile, double moaAccuracy, double velocityAccuracy, double energyAccuracy, double timeAccuracy, Boolean ignoreMach, String customDragTableName) 
+        throws IOException {
+        DrgFile customDrg = null;
+        if (customDragTableName != null) {
+            customDrg = DrgFileLoader.loadDragTable(customDragTableName);
+        }
+        TrajectoryLoader loader = new TrajectoryLoader();
+        loader.load(testFile, customDrg);
+        var expectedTrajectory = loader.getTrajectory();
+        var maxDistance = expectedTrajectory.get(expectedTrajectory.size() - 1).getDistance();
+        var pt0 = expectedTrajectory.get(0);
+        var pt1 = expectedTrajectory.get(1);
+        var step = Quantities.getQuantity(pt1.getDistance().getValue().doubleValue() - pt0.getDistance().getValue().doubleValue(), pt0.getDistance().getUnit());
+
+        var tc = new TrajectoryCalculator();
+        var sa = tc.calculateSightAngle(loader.getProjectile(), loader.getWeapon(), loader.getAtmosphere());
+
+        var shot = new ShotParameters(maxDistance, step, sa);
+        var trajectory = tc.calculate(loader.getProjectile(), loader.getWeapon(), loader.getAtmosphere(), shot, loader.getWind());
+
+        assertThat(trajectory.length).isEqualTo(expectedTrajectory.size());
+
+        for (int i = 0; i < trajectory.length; i++) {
+            var point = trajectory[i];
+            var expectedPoint = expectedTrajectory.get(i);
+            assertThat(point).isNotNull();
+            assertThat(expectedPoint).isNotNull();
+            assertThatTrajectoryPointsMatch(point, expectedPoint, moaAccuracy, velocityAccuracy, energyAccuracy, timeAccuracy, ignoreMach);
+        }
     }
 }

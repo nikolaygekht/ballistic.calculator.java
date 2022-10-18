@@ -333,7 +333,7 @@ public class TrajectoryLoader {
                     parseAngle(values[2], units[2]),
                     parseLength(values[3], units[3]),
                     parseAngle(values[4], units[4]),
-                    Quantities.getQuantity(Double.parseDouble(values[6]), CLDR.SECOND));
+                    Quantities.getQuantity(Double.parseDouble(values[8]), CLDR.SECOND));
             }
         return null;
     }

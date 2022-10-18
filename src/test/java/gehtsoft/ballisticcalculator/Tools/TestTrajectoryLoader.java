@@ -88,4 +88,32 @@ public class TestTrajectoryLoader {
         assertThat(projectile.getBulletWeight())
                     .isEqualTo(Quantities.getQuantity(13585, SI.GRAM));                                        
     }
+
+    @Test
+    public void loadsTrajectory() throws IOException {
+        TrajectoryLoader loader = new TrajectoryLoader();
+        loader.load("g1_twist.txt", null);
+        var trajectory = loader.getTrajectory();
+        assertThat(trajectory).isNotNull();
+        assertThat(trajectory.size()).isEqualTo(21);
+
+        var point = trajectory.get(0);
+        assertThat(point.getDistance()).isEqualTo(Quantities.getQuantity(0, CLDR.YARD));
+        assertThat(point.getVelocity()).isEqualTo(Quantities.getQuantity(3006.6, BCUnits.FEET_PER_SECOND));
+        assertThat(point.getMach()).isEqualTo(2.693);
+        assertThat(point.getFlightTime()).isEqualTo(Quantities.getQuantity(0, SI.SECOND));
+        assertThat(point.getDrop()).isEqualTo(Quantities.getQuantity(-1.5, CLDR.INCH));
+        assertThat(point.getWindage()).isEqualTo(Quantities.getQuantity(0, CLDR.INCH));
+        assertThat(point.getEnergy()).isEqualTo(Quantities.getQuantity(4415, BCUnits.FOOT_POUND));
+
+
+        point = trajectory.get(4);
+        assertThat(point.getDistance()).isEqualTo(Quantities.getQuantity(200, CLDR.YARD));
+        assertThat(point.getVelocity()).isEqualTo(Quantities.getQuantity(2629.2, BCUnits.FEET_PER_SECOND));
+        assertThat(point.getMach()).isEqualTo(2.355);
+        assertThat(point.getFlightTime()).isEqualTo(Quantities.getQuantity(0.213, SI.SECOND));
+        assertThat(point.getDrop()).isEqualTo(Quantities.getQuantity(-2.9, CLDR.INCH));
+        assertThat(point.getWindage()).isEqualTo(Quantities.getQuantity(0.2, CLDR.INCH));
+        assertThat(point.getEnergy()).isEqualTo(Quantities.getQuantity(3376.2, BCUnits.FOOT_POUND));
+    }
 }
