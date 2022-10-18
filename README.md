@@ -5,7 +5,9 @@ check the original repository for additional information about the library.
 
 The purpose of the project is primarily keep my rudimental java skills at minimum level :-).
 
-The package is under development now!!!
+The package is in alpha stage. 
+
+The initial version is created and validated against C# version.
 
 ## RISK NOTICE
 
