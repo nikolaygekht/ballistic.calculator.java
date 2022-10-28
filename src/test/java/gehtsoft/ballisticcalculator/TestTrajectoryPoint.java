@@ -3,16 +3,16 @@ package gehtsoft.ballisticcalculator;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-import gehtsoft.ballisticcalculator.Units.*;
+import gehtsoft.ballisticcalculator.units.*;
 import si.uom.SI;
 import systems.uom.unicode.*;
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
-public class TestTrajectoryPoint {
+class TestTrajectoryPoint {
 
     @Test
-    public void calculatedFields() {
+    void calculatedFields() {
         TrajectoryPoint tp = new TrajectoryPoint(
             Quantities.getQuantity(32.0, BCUnits.GRAIN),
             Quantities.getQuantity(150, CLDR.YARD),

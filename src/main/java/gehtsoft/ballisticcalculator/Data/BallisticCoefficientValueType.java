@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 /**  
   * The type of the ballistic coefficient value
@@ -13,7 +13,7 @@ public enum BallisticCoefficientValueType
      * It is proportion of the bullet sectional density to 
      * the sectional density of the original table's bullet
      */
-    Coefficient,
+    COEFFICIENT,
     
     /**
      * The form factor
@@ -24,5 +24,5 @@ public enum BallisticCoefficientValueType
      * If you use form factor, make sure that the bullet diameter and
      * bullet weight are specified. 
      */
-    FormFactor,
+    FORMFACTOR,
 }

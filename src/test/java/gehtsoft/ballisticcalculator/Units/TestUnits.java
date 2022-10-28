@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Units;
+package gehtsoft.ballisticcalculator.units;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,9 +8,9 @@ import static org.assertj.core.api.Assertions.*;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 
-public class TestUnits {
+class TestUnits {
     @Test
-    public void moa()
+    void moa()
     {
         assertThat(UnitUtils.convert(BCUnits.MOA, SI.RADIAN, 1))
             .isEqualTo(0.000290888208665722, within(1e-5));
@@ -20,7 +20,7 @@ public class TestUnits {
     }
 
     @Test
-    public void mil()
+    void mil()
     {
         assertThat(BCUnits.MIL.getConverterTo(SI.RADIAN).convert(1))
             .isEqualTo(0.0009817477042468104, within(1e-5));
@@ -30,31 +30,31 @@ public class TestUnits {
     }
 
     @Test
-    public void mrad()
+    void mrad()
     {
-        assertThat(BCUnits.MRad.getConverterTo(BCUnits.MOA).convert(1))
+        assertThat(BCUnits.MRAD.getConverterTo(BCUnits.MOA).convert(1))
             .isEqualTo(3.4377492368197, within(1e-5));
     }
 
     @Test
-    public void inchesPer100Yd()
+    void inchesPer100Yd()
     {
-        assertThat(BCUnits.MRad.getConverterTo(BCUnits.INCHES_PER_100YARDS).convert(1))
+        assertThat(BCUnits.MRAD.getConverterTo(BCUnits.INCHES_PER_100YARDS).convert(1))
             .isEqualTo(3.6, within(1e-5));
 
-        assertThat(BCUnits.INCHES_PER_100YARDS.getConverterTo(BCUnits.MRad).convert(3.6))
+        assertThat(BCUnits.INCHES_PER_100YARDS.getConverterTo(BCUnits.MRAD).convert(3.6))
             .isEqualTo(1, within(1e-5));
     }
 
     @Test
-    public void cmPer100Meters()
+    void cmPer100Meters()
     {
         assertThat(BCUnits.MIL.getConverterTo(BCUnits.CENTIMETERS_PER_100METRES).convert(1))
             .isEqualTo(9.817480196, within(1e-5));
     }
 
     @Test
-    public void grain()
+    void grain()
     {
         assertThat(CLDR.POUND.getConverterTo(BCUnits.GRAIN).convert(1))
             .isEqualTo(7000, within(1e-5));
@@ -64,14 +64,14 @@ public class TestUnits {
     }
 
     @Test
-    public void fps()
+    void fps()
     {
         assertThat(SI.METRE_PER_SECOND.getConverterTo(BCUnits.FEET_PER_SECOND).convert(290))
             .isEqualTo(951.444, within(1e-3));
     }
 
     @Test
-    public void ftlb()
+    void ftlb()
     {
         assertThat(SI.JOULE.getConverterTo(BCUnits.FOOT_POUND).convert(5.5))
             .isEqualTo(4.056591821024985, within(1e-6));

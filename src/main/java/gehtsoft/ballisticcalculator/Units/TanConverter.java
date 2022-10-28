@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Units;
+package gehtsoft.ballisticcalculator.units;
 
 import java.util.Objects;
 
@@ -27,10 +27,7 @@ final class TanConverter extends AbstractConverter implements ValueSupplier<Stri
 
 	@Override
 	protected boolean canReduceWith(AbstractConverter that) {
-		if (that instanceof AtanConverter && mBaseLeg == ((AtanConverter) that).getBaseLeg()) {
-			return true;
-		}
-		return false;
+		return that instanceof AtanConverter atanConverter && mBaseLeg == atanConverter.getBaseLeg();
 	}
 
 	@Override
@@ -53,10 +50,7 @@ final class TanConverter extends AbstractConverter implements ValueSupplier<Stri
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof TanConverter && mBaseLeg == ((TanConverter) obj).getBaseLeg()) {
-            return true;
-		}
-		return false;
+		return obj instanceof TanConverter tanConverter && mBaseLeg == tanConverter.getBaseLeg();
 	}
 
 	@Override

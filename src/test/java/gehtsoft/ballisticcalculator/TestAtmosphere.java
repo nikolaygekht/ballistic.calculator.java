@@ -4,22 +4,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import gehtsoft.ballisticcalculator.Data.Atmosphere;
-import gehtsoft.ballisticcalculator.Units.UnitUtils;
+import gehtsoft.ballisticcalculator.data.Atmosphere;
+import gehtsoft.ballisticcalculator.units.UnitUtils;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class TestAtmosphere {
+class TestAtmosphere {
     @ParameterizedTest
     @CsvSource(value = { "59.0,29.95,0,1.2261",
                          "59.0,29.95,0.78,1.2201",
                          "75,31.07,0.78,1.2237",
                          "10,28,0.3,1.2656"
                        })
-    public void density(double temperature, double pressure, double humidity, double density) {
+    void density(double temperature, double pressure, double humidity, double density) {
         Atmosphere atm = new Atmosphere(Quantities.getQuantity(0, SI.METRE), 
                                         Quantities.getQuantity(pressure, CLDR.INCH_HG), 
                                         false,
@@ -31,7 +31,7 @@ public class TestAtmosphere {
     @CsvSource(value = { "32.0,29.95,331",
                          "59.0,29.95,340",
                        })
-    public void speedOfSound(double temperature, double pressure, double speedOfSound) {
+    void speedOfSound(double temperature, double pressure, double speedOfSound) {
         Atmosphere atm = new Atmosphere(Quantities.getQuantity(0, SI.METRE), 
                                         Quantities.getQuantity(pressure, CLDR.INCH_HG), 
                                         false,
@@ -45,7 +45,7 @@ public class TestAtmosphere {
     @CsvSource(value = { "15, 101325, 1000, 89874.57",
                          "25, 101325, 200, 99024.40",
                        })
-    public void pressureShift(double temperature, double pressure, double altitude, double expectedPressure) {
+    void pressureShift(double temperature, double pressure, double altitude, double expectedPressure) {
         Atmosphere atm = new Atmosphere(Quantities.getQuantity(altitude, SI.METRE), 
                                         Quantities.getQuantity(pressure, CLDR.PASCAL), 
                                         true,
@@ -55,11 +55,11 @@ public class TestAtmosphere {
     }
 
     @Test
-    public void densityCalculation() {
+    void densityCalculation() {
       Atmosphere atm = new Atmosphere();
       var t = atm.getTemperatureAtAltitude(atm.getAltitude());
       assertThat(UnitUtils.compare(atm.getTemperature(), 
-                                   Quantities.getQuantity(t, SI.KELVIN))).isEqualTo(0);
+                                   Quantities.getQuantity(t, SI.KELVIN))).isZero();
 
       t = atm.getTemperatureAtAltitude(Quantities.getQuantity(1000, SI.METRE));       
       var delta = t - UnitUtils.in(atm.getTemperature(), SI.KELVIN);

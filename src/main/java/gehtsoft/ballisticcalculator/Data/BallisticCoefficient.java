@@ -1,6 +1,6 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
-import gehtsoft.ballisticcalculator.Drag.*;
+import gehtsoft.ballisticcalculator.drag.*;
 
 /**
  * Ballistic coefficient of a projectile
@@ -39,7 +39,7 @@ public class BallisticCoefficient {
      */
     public BallisticCoefficient(double value, DragTableId tableId)  {
         mValue = value;
-        mType = BallisticCoefficientValueType.Coefficient;
+        mType = BallisticCoefficientValueType.COEFFICIENT;
         mDragTable = StandardDragTableFactory.getInstance().getTable(tableId);
     }
 

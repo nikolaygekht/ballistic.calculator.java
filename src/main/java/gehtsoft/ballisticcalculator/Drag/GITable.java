@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Drag;
+package gehtsoft.ballisticcalculator.drag;
 
 class GITable extends AdvancedDragTable {
     public GITable() {

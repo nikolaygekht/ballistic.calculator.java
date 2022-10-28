@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;

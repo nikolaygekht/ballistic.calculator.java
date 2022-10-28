@@ -1,10 +1,10 @@
-package gehtsoft.ballisticcalculator.Drag;
+package gehtsoft.ballisticcalculator.drag;
 
 public final class StandardDragTableFactory {
     private AdvancedDragTable gG1;
 
     /** Gets G1 ballistic table */
-    public IDragTable G1() {
+    public IDragTable getG1() {
         if (gG1 == null) {
             gG1 = new G1Table();
         }
@@ -14,7 +14,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gG2;
 
     /** Gets G5 ballistic table */
-    public IDragTable G2() {
+    public IDragTable getG2() {
         if (gG2 == null) {
             gG2 = new G2Table();
         }
@@ -24,7 +24,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gG5;
 
     /** Gets G5 ballistic table */
-    public IDragTable G5() {
+    public IDragTable getG5() {
         if (gG5 == null) {
             gG5 = new G5Table();
         }
@@ -34,7 +34,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gG6;
 
     /** Gets G1 ballistic table */
-    public IDragTable G6() {
+    public IDragTable getG6() {
         if (gG6 == null) {
             gG6 = new G6Table();
         }
@@ -44,7 +44,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gG7;
 
     /** Gets G1 ballistic table */
-    public IDragTable G7() {
+    public IDragTable getG7() {
         if (gG7 == null) {
             gG7 = new G7Table();
         }
@@ -54,7 +54,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gG8;
 
     /** Gets G8 ballistic table */
-    public IDragTable G8() {
+    public IDragTable getG8() {
         if (gG8 == null) {
             gG8 = new G8Table();
         }
@@ -64,7 +64,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gGI;
 
     /** Gets G1 ballistic table */
-    public IDragTable GI() {
+    public IDragTable getGI() {
         if (gGI == null) {
             gGI = new GITable();
         }
@@ -74,7 +74,7 @@ public final class StandardDragTableFactory {
     private AdvancedDragTable gGS;
 
     /** Gets GS ballistic table */
-    public IDragTable GS() {
+    public IDragTable getGS() {
         if (gGS == null) {
             gGS = new GSTable();
         }
@@ -96,21 +96,21 @@ public final class StandardDragTableFactory {
         throws IllegalArgumentException {
         switch (id) {
             case G1:
-                return G1();
+                return getG1();
             case G2:
-                return G2();
+                return getG2();
             case G5:
-                return G5();
+                return getG5();
             case G6:
-                return G6();
+                return getG6();
             case G7:
-                return G7();
+                return getG7();
             case G8:
-                return G8();
+                return getG8();
             case GI:
-                return GI();
+                return getGI();
             case GS:
-                return GS();
+                return getGS();
             default:
                 throw new IllegalArgumentException("Unknown table id");
         }

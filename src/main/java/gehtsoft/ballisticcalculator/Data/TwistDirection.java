@@ -1,7 +1,7 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 /** Rifling twist direction */
 public enum TwistDirection {
-    Left,
-    Right
+    LEFT,
+    RIGHT
 }

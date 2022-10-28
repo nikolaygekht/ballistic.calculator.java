@@ -3,14 +3,15 @@ package gehtsoft.ballisticcalculator;
 import javax.measure.*;
 import javax.measure.quantity.*;
 
-import gehtsoft.ballisticcalculator.Data.*;
-import gehtsoft.ballisticcalculator.Drag.*;
-import gehtsoft.ballisticcalculator.Units.*;
+import gehtsoft.ballisticcalculator.data.*;
+import gehtsoft.ballisticcalculator.drag.*;
+import gehtsoft.ballisticcalculator.units.*;
 import si.uom.SI;
 import systems.uom.common.Imperial;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
+@java.lang.SuppressWarnings("java:S3252") //false positive for java's own SI.*
 public class TrajectoryCalculator {
     /** The maximum step size of the calculation.
          * The default value is 10cm
@@ -47,7 +48,8 @@ public class TrajectoryCalculator {
         var alt0 = UnitUtils.in(atmosphere.getAltitude(), CLDR.FOOT);
         var altDelta = 12.0;    //12 feet
 
-        double densityFactor = 0, drag;
+        double densityFactor = 0;
+        double drag;
         var mach = 0.0;
 
         var sightAngle = UnitUtils.in(Quantities.getQuantity(150, BCUnits.MOA), SI.RADIAN);
@@ -59,7 +61,6 @@ public class TrajectoryCalculator {
             var barrelElevation = sightAngle;
 
             var velocity = UnitUtils.in(ammunition.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND);
-            //double time = 0;
 
             //x - distance towards target,
             //y - drop and
@@ -81,12 +82,12 @@ public class TrajectoryCalculator {
             double ballisticFactor = 1.0 / ammunition.getBallisticCoefficientValue();
             var accumulatedFactor = PIR * ballisticFactor;
             var earthGravity = 32.17405;
-            var _maximumRange = UnitUtils.in(maximumRange, CLDR.FOOT);
-            var _maximumDrop = UnitUtils.in(mMaximumDrop, CLDR.FOOT);
-            var _minimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
+            var rawMaximumRange = UnitUtils.in(maximumRange, CLDR.FOOT);
+            var rawMaximumDrop = UnitUtils.in(mMaximumDrop, CLDR.FOOT);
+            var rawMinimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
 
             //run all the way down the range
-            while (rangeVector.getX() <= _maximumRange) {
+            while (rangeVector.getX() <= rawMaximumRange) {
                 var alt = alt0 + rangeVector.getY();
 
                 if (Math.abs(alt - lastAtAltitude) > altDelta) {
@@ -97,8 +98,8 @@ public class TrajectoryCalculator {
                     lastAtAltitude = alt;
                 }
 
-                if (velocity < _minimumVelocity ||
-                    rangeVector.getY() < _maximumDrop)
+                if (velocity < rawMinimumVelocity ||
+                    rangeVector.getY() < rawMaximumDrop)
                     break;
 
                 double deltaTime = calculationStep / velocityVector.getX();
@@ -141,7 +142,6 @@ public class TrajectoryCalculator {
                 }
 
                 velocity = velocityVector.getMagnitude();
-                //time += deltaRangeVector.getMagnitude() / velocity;
             }
         }
         throw new IllegalArgumentException("Cannot find zero parameters for the specified zeroing information");
@@ -169,7 +169,8 @@ public class TrajectoryCalculator {
         var alt0 = UnitUtils.in(atmosphere.getAltitude(), CLDR.FOOT);
         var altDelta = 12.0;    //12 feet
 
-        double densityFactor = 0, drag;
+        double densityFactor = 0;
+        double drag;
         var mach = 0.0;
 
         double stabilityCoefficient = 1;
@@ -189,7 +190,8 @@ public class TrajectoryCalculator {
 
         TrajectoryPoint[] trajectoryPoints = new TrajectoryPoint[(int)(Math.floor(rangeTo / step)) + 1];
 
-        double barrelAzimuth, barrelElevation = UnitUtils.in(shot.getSightAngle(), SI.RADIAN);
+        double barrelAzimuth;
+        double barrelElevation = UnitUtils.in(shot.getSightAngle(), SI.RADIAN);
 
         if (shot.getBarrelAzimuth() != null)
             barrelAzimuth = UnitUtils.in(shot.getBarrelAzimuth(), SI.RADIAN);
@@ -197,7 +199,7 @@ public class TrajectoryCalculator {
             barrelAzimuth = 0;
 
         if (shot.getShotAngle() != null)
-            barrelElevation += UnitUtils.in(shot.getBarrelAzimuth(), SI.RADIAN);;
+            barrelElevation += UnitUtils.in(shot.getBarrelAzimuth(), SI.RADIAN);
 
         var velocity = UnitUtils.in(ammunition.getMuzzleVelocity(), BCUnits.FEET_PER_SECOND);
         double time = 0;
@@ -233,8 +235,8 @@ public class TrajectoryCalculator {
         var accumulatedFactor = PIR * ballisticFactor;
         var earthGravity = 32.17405;
 
-        var _maximumDrop = UnitUtils.in(mMaximumDrop, CLDR.FOOT);
-        var _minimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
+        var rawMaximumDrop = UnitUtils.in(mMaximumDrop, CLDR.FOOT);
+        var rawMinimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
 
         //run all the way down the range
         while (rangeVector.getX() <= maximumRange)
@@ -251,17 +253,17 @@ public class TrajectoryCalculator {
                 lastAtAltitude = alt;
             }
 
-            if (velocity < _minimumVelocity || 
-                rangeVector.getY() < _maximumDrop)
+            if (velocity < rawMinimumVelocity || 
+                rangeVector.getY() < rawMaximumDrop)
                 break;
 
             if (rangeVector.getX() >= nextRangeDistance)
             {
                 var windage = rangeVector.getZ();
-                if (calculateDrift)
+                if (Boolean.TRUE.equals(calculateDrift))
                     windage += (1.25 * (stabilityCoefficient + 1.2) * 
                                        Math.pow(time, 1.83) * 
-                                       (rifle.getRifling().getTwistDirection() == TwistDirection.Right ? 1 : -1)) / 12.0;
+                                       (rifle.getRifling().getTwistDirection() == TwistDirection.RIGHT ? 1 : -1)) / 12.0;
 
                 trajectoryPoints[currentItem] = new TrajectoryPoint(
                     ammunition.getBulletWeight(),
@@ -330,7 +332,8 @@ public class TrajectoryCalculator {
         double cantCosine = Math.cos(UnitUtils.in(cantAngle, SI.RADIAN));
         double cantSine = Math.sin(UnitUtils.in(cantAngle, SI.RADIAN));
 
-        Quantity<Speed> rangeVelocity, crossComponent;
+        Quantity<Speed> rangeVelocity;
+        Quantity<Speed> crossComponent;
 
         if (wind != null)
         {

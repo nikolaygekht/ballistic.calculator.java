@@ -3,12 +3,14 @@ package gehtsoft.ballisticcalculator;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
-import gehtsoft.ballisticcalculator.Units.UnitUtils;
+import gehtsoft.ballisticcalculator.units.UnitUtils;
 import tech.units.indriya.quantity.Quantities;
 
 /** 3D vector for calculations */
 class QuantityVector<T extends Quantity<T>> {
-    private Quantity<T> mX, mY, mZ;
+    private Quantity<T> mX;
+    private Quantity<T> mY;
+    private Quantity<T> mZ;
 
     /** Returns X coordinate */
     public Quantity<T> getX() {
@@ -61,12 +63,12 @@ class QuantityVector<T extends Quantity<T>> {
 
     /** Adds a vector */
     public QuantityVector<T> add(QuantityVector<T> v) {
-        return new QuantityVector<T>(add(mX, v.mX), add(mY, v.mY), add(mZ, v.mZ));
+        return new QuantityVector<>(add(mX, v.mX), add(mY, v.mY), add(mZ, v.mZ));
     }
 
     /** Subtract a vector */
     public QuantityVector<T> subtract(QuantityVector<T> v) {
-        return new QuantityVector<T>(add(mX, v.mX.negate()), add(mY, v.mY.negate()), add(mZ, v.mZ.negate()));
+        return new QuantityVector<>(add(mX, v.mX.negate()), add(mY, v.mY.negate()), add(mZ, v.mZ.negate()));
     }
 
     /** Gets distance between two vectors */
@@ -76,6 +78,6 @@ class QuantityVector<T extends Quantity<T>> {
 
     /** Multiple vector by a constant */
     public QuantityVector<T> multiply(double v) {
-        return new QuantityVector<T>(mX.multiply(v), mY.multiply(v), mZ.multiply(v));
+        return new QuantityVector<>(mX.multiply(v), mY.multiply(v), mZ.multiply(v));
     }
 }

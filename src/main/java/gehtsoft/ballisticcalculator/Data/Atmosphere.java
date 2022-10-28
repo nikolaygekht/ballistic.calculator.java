@@ -1,13 +1,14 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.*;
 
-import gehtsoft.ballisticcalculator.Units.UnitUtils;
+import gehtsoft.ballisticcalculator.units.UnitUtils;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
+@java.lang.SuppressWarnings("java:S3252") //false positive for java's own SI.*
 /** The atmosphere data */
 public class Atmosphere {
     private Quantity<Length> mAltitude;
@@ -60,7 +61,7 @@ public class Atmosphere {
     */
     public Atmosphere(Quantity<Length> altitude, Quantity<Pressure> pressure, Boolean pressureAtSeaLevel, Quantity<Temperature> temperature, double humidity) {
         mAltitude = altitude;
-        if (pressureAtSeaLevel) {
+        if (Boolean.TRUE.equals(pressureAtSeaLevel)) {
 
             mPressure = Quantities.getQuantity(
                 calculatePressure(UnitUtils.in(pressure, SI.PASCAL), 
@@ -127,8 +128,7 @@ public class Atmosphere {
         double actualVapourPressure = vaporSaturation * humidity;
         double dryPressure = pressure - actualVapourPressure;
 
-        double density = dryPressure / (DRY_AIR_K * tk) + actualVapourPressure / (VAPOR_K * tk);
-        return density;
+        return /* density */ dryPressure / (DRY_AIR_K * tk) + actualVapourPressure / (VAPOR_K * tk);
     }
 
     // https://www.grc.nasa.gov/www/BGH/isentrop.html
@@ -170,8 +170,7 @@ public class Atmosphere {
     /** Returns temperature at altitude in Kelvins */
     public double getTemperatureAtAltitude(Quantity<Length> altitude) {
         double a = UnitUtils.in(altitude, SI.METRE);
-        var t = calculateTemperature(UnitUtils.in(mTemperature, SI.KELVIN), UnitUtils.in(mAltitude, SI.METRE), a);
-        return t;
+        return calculateTemperature(UnitUtils.in(mTemperature, SI.KELVIN), UnitUtils.in(mAltitude, SI.METRE), a);
     }
 
     /** Returns density factor for the specified altitude and temperature at altitude */

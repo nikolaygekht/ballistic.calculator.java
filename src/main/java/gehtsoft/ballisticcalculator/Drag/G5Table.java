@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Drag;
+package gehtsoft.ballisticcalculator.drag;
 
 class G5Table extends AdvancedDragTable {
     public G5Table() {

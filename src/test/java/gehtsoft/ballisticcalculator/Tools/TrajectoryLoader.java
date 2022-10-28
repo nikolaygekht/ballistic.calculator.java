@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Tools;
+package gehtsoft.ballisticcalculator.tools;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -8,10 +8,10 @@ import javax.measure.*;
 import javax.measure.quantity.*;
 
 import gehtsoft.ballisticcalculator.*;
-import gehtsoft.ballisticcalculator.Data.*;
-import gehtsoft.ballisticcalculator.Drag.IDragTable;
-import gehtsoft.ballisticcalculator.Drag.StandardDragTableFactory;
-import gehtsoft.ballisticcalculator.Units.BCUnits;
+import gehtsoft.ballisticcalculator.data.*;
+import gehtsoft.ballisticcalculator.drag.IDragTable;
+import gehtsoft.ballisticcalculator.drag.StandardDragTableFactory;
+import gehtsoft.ballisticcalculator.units.BCUnits;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
@@ -237,26 +237,26 @@ public class TrajectoryLoader {
     }
 
     public BallisticCoefficient parseBallisticCoefficient(String value, IDragTable customTable) {
-        BallisticCoefficientValueType type = BallisticCoefficientValueType.Coefficient;
+        BallisticCoefficientValueType type = BallisticCoefficientValueType.COEFFICIENT;
         if (value.charAt(0) == 'F')
         {
-            type = BallisticCoefficientValueType.FormFactor;
+            type = BallisticCoefficientValueType.FORMFACTOR;
             value = value.substring(1);
         }
         var r = splitValue(value);
         IDragTable table = null;
         if (r[1].equals("G1"))
-            table = StandardDragTableFactory.getInstance().G1();
+            table = StandardDragTableFactory.getInstance().getG1();
         else if (r[1].equals("G2"))
-            table = StandardDragTableFactory.getInstance().G2();
+            table = StandardDragTableFactory.getInstance().getG2();
         else if (r[1].equals("G5"))
-            table = StandardDragTableFactory.getInstance().G5();
+            table = StandardDragTableFactory.getInstance().getG5();
         else if (r[1].equals("G6"))
-            table = StandardDragTableFactory.getInstance().G6();
+            table = StandardDragTableFactory.getInstance().getG6();
         else if (r[1].equals("G7"))
-            table = StandardDragTableFactory.getInstance().G7();
+            table = StandardDragTableFactory.getInstance().getG7();
         else if (r[1].equals("G8"))
-            table = StandardDragTableFactory.getInstance().G8();
+            table = StandardDragTableFactory.getInstance().getG8();
         else if (r[1].equals("GC"))
             table = customTable;
         else
@@ -286,9 +286,9 @@ public class TrajectoryLoader {
     private Weapon parseWeapon(String[] values) {
         Rifling rifling = null;
         if (values.length >= 5) {
-            var direction = TwistDirection.Right;
+            var direction = TwistDirection.RIGHT;
             if (values[4] == "left")
-                direction = TwistDirection.Left;
+                direction = TwistDirection.LEFT;
             rifling = new Rifling(parseLength(values[3]), direction);
         }
         if (values.length >= 3) {

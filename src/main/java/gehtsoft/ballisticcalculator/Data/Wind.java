@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
@@ -6,8 +6,8 @@ import javax.measure.quantity.Speed;
 
 /** The wind information */
 public class Wind {
-    public Quantity<Speed> mSpeed;
-    public Quantity<Angle> mDirection;
+    private Quantity<Speed> mSpeed;
+    private Quantity<Angle> mDirection;
 
     /** Returns the wind speed */
     public Quantity<Speed> getSpeed() {

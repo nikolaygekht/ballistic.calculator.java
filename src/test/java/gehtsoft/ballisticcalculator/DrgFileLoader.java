@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import gehtsoft.ballisticcalculator.Drag.DrgFile;
+import gehtsoft.ballisticcalculator.drag.DrgFile;
 
 public class DrgFileLoader {
     public static DrgFile loadDragTable(String resourceName) throws IOException {

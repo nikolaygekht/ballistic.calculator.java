@@ -3,10 +3,10 @@ package gehtsoft.ballisticcalculator;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import gehtsoft.ballisticcalculator.Data.*;
-import gehtsoft.ballisticcalculator.Drag.*;
-import gehtsoft.ballisticcalculator.Tools.TrajectoryLoader;
-import gehtsoft.ballisticcalculator.Units.*;
+import gehtsoft.ballisticcalculator.data.*;
+import gehtsoft.ballisticcalculator.drag.*;
+import gehtsoft.ballisticcalculator.tools.TrajectoryLoader;
+import gehtsoft.ballisticcalculator.units.*;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-public class TestTrajectoryCalculator {
+class TestTrajectoryCalculator {
 
     @ParameterizedTest
     @CsvSource(value = { 
@@ -24,7 +24,7 @@ public class TestTrajectoryCalculator {
         "0.365, G1, 2600, fps, 375, yd, 12.78",
         "0.47, G7, 725, ms, 200, m, 8.171"
     })
-    public void zeroAngle(double bcValue, String table, double speed, String speedUnits, double zeroDistance, String distanceUnits, double moaSightAngle) {
+    void zeroAngle(double bcValue, String table, double speed, String speedUnits, double zeroDistance, String distanceUnits, double moaSightAngle) {
         var id = table.trim().compareTo("G7") == 0 ? DragTableId.G7 : DragTableId.G1;
         var bc = new BallisticCoefficient(bcValue, id);
         var mvu = speedUnits.trim().compareTo("ms") == 0 ? SI.METRE_PER_SECOND : BCUnits.FEET_PER_SECOND;
@@ -84,7 +84,7 @@ public class TestTrajectoryCalculator {
         "custom.txt, 0.75, 10, 0, 0.05, true, drg.txt",
         "custom2.txt, 0.75, 10, 0, 0.05, true, drg2.txt",
     })
-    public void trajectory(String testFile, double moaAccuracy, double velocityAccuracy, double energyAccuracy, double timeAccuracy, Boolean ignoreMach, String customDragTableName) 
+    void trajectory(String testFile, double moaAccuracy, double velocityAccuracy, double energyAccuracy, double timeAccuracy, Boolean ignoreMach, String customDragTableName) 
         throws IOException {
         DrgFile customDrg = null;
         if (customDragTableName != null) {
@@ -104,7 +104,8 @@ public class TestTrajectoryCalculator {
         var shot = new ShotParameters(maxDistance, step, sa);
         var trajectory = tc.calculate(loader.getProjectile(), loader.getWeapon(), loader.getAtmosphere(), shot, loader.getWind());
 
-        assertThat(trajectory.length).isEqualTo(expectedTrajectory.size());
+        var expectedLength = expectedTrajectory.size();
+        assertThat(trajectory).hasSize(expectedLength);
 
         for (int i = 0; i < trajectory.length; i++) {
             var point = trajectory[i];

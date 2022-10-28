@@ -2,17 +2,17 @@ package gehtsoft.ballisticcalculator;
 
 import org.junit.jupiter.api.Test;
 
-import gehtsoft.ballisticcalculator.Drag.*;
-import gehtsoft.ballisticcalculator.Units.*;
+import gehtsoft.ballisticcalculator.drag.*;
+import gehtsoft.ballisticcalculator.units.*;
 import si.uom.SI;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 
-public class TestDragTable {
+class TestDragTable {
     @Test
-    public void FactoryReturnsTableWithCorrectId() {
+    void FactoryReturnsTableWithCorrectId() {
         assertThat(StandardDragTableFactory.getInstance().getTable(DragTableId.G1).getID())
             .isEqualTo(DragTableId.G1);
         assertThat(StandardDragTableFactory.getInstance().getTable(DragTableId.G2).getID())
@@ -32,7 +32,7 @@ public class TestDragTable {
     }
 
     @Test
-    public void TestNodes() {
+    void TestNodes() {
         IDragTable table = StandardDragTableFactory.getInstance().getTable(DragTableId.G1);
         
         assertThat(table.length()).isGreaterThan(10);
@@ -67,7 +67,7 @@ public class TestDragTable {
     }
 
     @Test
-    public void TestReadDRG() throws IOException {
+    void TestReadDRG() throws IOException {
         DrgFile drgFile = DrgFileLoader.loadDragTable("drg2.txt");
         assertThat(drgFile.getName()).isEqualTo("120mm Mortar (McCoy)");
         assertThat(UnitUtils.in(drgFile.getBulletWeight(), SI.GRAM)).isEqualTo(13585);

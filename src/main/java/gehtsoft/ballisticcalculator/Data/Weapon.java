@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 /** The information about the weapon */
 public class Weapon {

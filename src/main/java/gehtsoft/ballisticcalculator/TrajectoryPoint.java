@@ -6,6 +6,7 @@ import javax.measure.quantity.*;
 import si.uom.SI;
 import tech.units.indriya.quantity.Quantities;
 
+@java.lang.SuppressWarnings("java:S3252") //false positive for java's own SI.*
 /**
  * One point of a calculated trajectory.
  */

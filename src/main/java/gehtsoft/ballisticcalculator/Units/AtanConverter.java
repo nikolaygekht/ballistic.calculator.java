@@ -1,7 +1,6 @@
-package gehtsoft.ballisticcalculator.Units;
+package gehtsoft.ballisticcalculator.units;
 
 import java.util.Objects;
-
 import javax.measure.UnitConverter;
 
 import tech.units.indriya.function.AbstractConverter;
@@ -27,10 +26,7 @@ final class AtanConverter extends AbstractConverter implements ValueSupplier<Str
 
 	@Override
 	protected boolean canReduceWith(AbstractConverter that) {
-		if (that instanceof TanConverter && mBaseLeg == ((TanConverter) that).getBaseLeg()) {
-			return true;
-		}
-		return false;
+		return that instanceof TanConverter tanConverter && mBaseLeg == tanConverter.getBaseLeg();
 	}
 
 	@Override
@@ -53,10 +49,7 @@ final class AtanConverter extends AbstractConverter implements ValueSupplier<Str
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof AtanConverter && mBaseLeg == ((AtanConverter)obj).getBaseLeg()) {
-            return true;
-		}
-		return false;
+		return obj instanceof AtanConverter atanConverter && mBaseLeg == atanConverter.getBaseLeg();
 	}
 
 	@Override

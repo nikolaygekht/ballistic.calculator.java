@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Drag;
+package gehtsoft.ballisticcalculator.drag;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import javax.measure.quantity.*;
 import si.uom.SI;
 import tech.units.indriya.quantity.Quantities;
 
+@java.lang.SuppressWarnings("java:S3252") //false positive for java's own SI.*
 public class DrgFile extends AdvancedDragTable {
     private String mName;
     private Quantity<Length> mBulletDiameter;
@@ -51,7 +52,7 @@ public class DrgFile extends AdvancedDragTable {
         String name = null;
         Quantity<Length> bulletDiameter = null;
         Quantity<Mass> bulletWeight = null;
-        ArrayList<DragTableDataPoint> list = new ArrayList<DragTableDataPoint>();
+        ArrayList<DragTableDataPoint> list = new ArrayList<>();
 
         String line;
 

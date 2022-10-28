@@ -2,7 +2,9 @@ package gehtsoft.ballisticcalculator;
 
 /** 3D vector for calculations */
 class Vector {
-    private double mX, mY, mZ;
+    private double mX;
+    private double mY;
+    private double mZ;
 
     /** Returns X coordinate */
     public double getX() {

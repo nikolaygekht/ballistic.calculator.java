@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Units;
+package gehtsoft.ballisticcalculator.units;
 
 import javax.measure.*;
 
@@ -18,7 +18,9 @@ public final class UnitUtils {
     }
 
     public static <Q extends Quantity<Q>> int compare(Quantity<Q> a, Quantity<Q> b) {
-        double v1, v2;
+        double v1;
+        double v2;
+
         v1 = a.getValue().doubleValue();
 
         if (a.getUnit() == b.getUnit())
@@ -34,7 +36,9 @@ public final class UnitUtils {
     }
 
     public static <Q extends Quantity<Q>> double divide(Quantity<Q> a, Quantity<Q> b) {
-        double v1, v2;
+        double v1;
+        double v2;
+
         v1 = a.getValue().doubleValue();
 
         if (a.getUnit() == b.getUnit())
@@ -44,5 +48,7 @@ public final class UnitUtils {
 
         return v1 / v2;
     }
+
+    private UnitUtils() {}
 }
 

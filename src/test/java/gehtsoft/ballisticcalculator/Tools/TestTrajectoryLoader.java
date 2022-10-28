@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Tools;
+package gehtsoft.ballisticcalculator.tools;
 
 import java.io.IOException;
 
@@ -7,23 +7,23 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import gehtsoft.ballisticcalculator.DrgFileLoader;
-import gehtsoft.ballisticcalculator.Data.BallisticCoefficientValueType;
-import gehtsoft.ballisticcalculator.Drag.DragTableId;
-import gehtsoft.ballisticcalculator.Drag.DrgFile;
-import gehtsoft.ballisticcalculator.Units.BCUnits;
+import gehtsoft.ballisticcalculator.data.BallisticCoefficientValueType;
+import gehtsoft.ballisticcalculator.drag.DragTableId;
+import gehtsoft.ballisticcalculator.drag.DrgFile;
+import gehtsoft.ballisticcalculator.units.BCUnits;
 import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class TestTrajectoryLoader {
+class TestTrajectoryLoader {
     @ParameterizedTest
     @CsvSource(value = { "g1_twist.txt, none, 21",
                          "g1_nowind.txt, none, 21",
                          "custom2.txt, drg2.txt, 16",
                         })
-    public void loads(String name, String tableName, int count) throws IOException {
+    void loads(String name, String tableName, int count) throws IOException {
         DrgFile table = null;
         name = name.trim();
         tableName = tableName.trim();
@@ -40,18 +40,18 @@ public class TestTrajectoryLoader {
         
         assertThat(loader.getTrajectory())
             .isNotNull();
-        assertThat(loader.getTrajectory().size())
-            .isEqualTo(count);
+        assertThat(loader.getTrajectory())
+            .hasSize(count);
     }
 
     @Test
-    public void loadAmmoStandardTable() throws IOException {
+    void loadAmmoStandardTable() throws IOException {
         TrajectoryLoader loader = new TrajectoryLoader();
         loader.load("g1_twist.txt", null);
         var projectile = loader.getProjectile();
         assertThat(projectile.getBallisticCoefficient()).isNotNull();
         assertThat(projectile.getBallisticCoefficient()
-                    .getType()).isEqualTo(BallisticCoefficientValueType.Coefficient);
+                    .getType()).isEqualTo(BallisticCoefficientValueType.COEFFICIENT);
         assertThat(projectile.getBallisticCoefficient()
                     .getValue()).isEqualTo(0.5);
         assertThat(projectile.getBallisticCoefficient()
@@ -67,14 +67,14 @@ public class TestTrajectoryLoader {
     }
 
     @Test
-    public void loadAmmoCustomTable() throws IOException {
+    void loadAmmoCustomTable() throws IOException {
         DrgFile drgFile = DrgFileLoader.loadDragTable("drg2.txt");
         TrajectoryLoader loader = new TrajectoryLoader();
         loader.load("custom2.txt", drgFile);
         var projectile = loader.getProjectile();
         assertThat(projectile.getBallisticCoefficient()).isNotNull();
         assertThat(projectile.getBallisticCoefficient()
-                    .getType()).isEqualTo(BallisticCoefficientValueType.FormFactor);
+                    .getType()).isEqualTo(BallisticCoefficientValueType.FORMFACTOR);
         assertThat(projectile.getBallisticCoefficient()
                     .getValue()).isEqualTo(1);
         assertThat(projectile.getBallisticCoefficient()
@@ -90,12 +90,12 @@ public class TestTrajectoryLoader {
     }
 
     @Test
-    public void loadsTrajectory() throws IOException {
+    void loadsTrajectory() throws IOException {
         TrajectoryLoader loader = new TrajectoryLoader();
         loader.load("g1_twist.txt", null);
         var trajectory = loader.getTrajectory();
-        assertThat(trajectory).isNotNull();
-        assertThat(trajectory.size()).isEqualTo(21);
+        assertThat(trajectory).isNotNull()
+                              .hasSize(21);
 
         var point = trajectory.get(0);
         assertThat(point.getDistance()).isEqualTo(Quantities.getQuantity(0, CLDR.YARD));

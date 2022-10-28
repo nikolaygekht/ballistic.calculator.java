@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Units;
+package gehtsoft.ballisticcalculator.units;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,9 +10,9 @@ import si.uom.SI;
 import systems.uom.unicode.CLDR;
 import tech.units.indriya.quantity.Quantities;
 
-public class TestUnitUtils {
+class TestUnitUtils {
     @Test
-    public void convert() {
+    void convert() {
         var v = Quantities.getQuantity(1, CLDR.INCH);
         var v2 = UnitUtils.convert(v, SI.METRE);
         assertThat(v2.getValue().doubleValue()).isEqualTo(0.0254);
@@ -24,7 +24,7 @@ public class TestUnitUtils {
                          "1.0, 1.1, -1",
                          "1.1, 1.0, 1",
                        })
-    public void CompareSameDimension(double n1, double n2, int expectedResult) {
+    void CompareSameDimension(double n1, double n2, int expectedResult) {
         var v1 = Quantities.getQuantity(n1, CLDR.INCH);
         var v2 = Quantities.getQuantity(n2, CLDR.INCH);
         assertThat(UnitUtils.compare(v1, v2)).isEqualTo(expectedResult);
@@ -35,7 +35,7 @@ public class TestUnitUtils {
                          "2, 1, -1",
                          "2, 0.0254, 1",
                        })
-    public void CompareDifferentDimensions(double n1, double n2, int expectedResult) {
+    void CompareDifferentDimensions(double n1, double n2, int expectedResult) {
         var v1 = Quantities.getQuantity(n1, CLDR.INCH);
         var v2 = Quantities.getQuantity(n2, CLDR.METER);
         assertThat(UnitUtils.compare(v1, v2)).isEqualTo(expectedResult);

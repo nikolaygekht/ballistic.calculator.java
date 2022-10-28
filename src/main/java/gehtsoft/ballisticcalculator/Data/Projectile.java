@@ -1,9 +1,9 @@
-package gehtsoft.ballisticcalculator.Data;
+package gehtsoft.ballisticcalculator.data;
 
 import javax.measure.*;
 import javax.measure.quantity.*;
 
-import gehtsoft.ballisticcalculator.Units.UnitUtils;
+import gehtsoft.ballisticcalculator.units.UnitUtils;
 import systems.uom.common.Imperial;
 
 /**
@@ -76,7 +76,7 @@ public class Projectile {
      * In this case, the bullet diameter and weight (for an etalon bullet) is required.
      */
     public double getBallisticCoefficientValue() {
-        if (mBallisticCoefficient.getType() == BallisticCoefficientValueType.Coefficient) {
+        if (mBallisticCoefficient.getType() == BallisticCoefficientValueType.COEFFICIENT) {
             return mBallisticCoefficient.getValue();
         } else {
             if (mBulletDiameter == null || mBulletDiameter.getValue().doubleValue() <= 0)

@@ -1,4 +1,4 @@
-package gehtsoft.ballisticcalculator.Drag;
+package gehtsoft.ballisticcalculator.drag;
 
 /** 
  * The data point of the source drag table
@@ -20,10 +20,10 @@ public class DragTableDataPoint {
     /**
      * Constructor
      * @param mach Mach speed
-     * @param DragCoefficient Drag coefficient
+     * @param dragCoefficient Drag coefficient
      */
-    public DragTableDataPoint(double mach, double DragCoefficient) {
+    public DragTableDataPoint(double mach, double dragCoefficient) {
         mMach = mach;
-        mDragCoefficient = DragCoefficient;
+        mDragCoefficient = dragCoefficient;
     }
 }

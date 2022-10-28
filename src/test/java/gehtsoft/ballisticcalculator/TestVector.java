@@ -3,9 +3,9 @@ package gehtsoft.ballisticcalculator;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 
-public class TestVector {
+class TestVector {
     @Test
-    public void Constructor() {
+    void Constructor() {
         Vector v = new Vector(1, 2, 3);
         assertThat(v.getX()).isEqualTo(1);
         assertThat(v.getY()).isEqualTo(2);
@@ -13,7 +13,7 @@ public class TestVector {
     }    
 
     @Test
-    public void normalize() {
+    void normalize() {
         Vector v = new Vector(1, 2, 3);
         assertThat(v.normalize().getMagnitude()).isLessThanOrEqualTo(1);
 
@@ -22,13 +22,13 @@ public class TestVector {
     }
 
     @Test 
-    public void getMagnitude() {
+    void getMagnitude() {
         Vector v = new Vector(1, 2, 3);
         assertThat(v.getMagnitude()).isEqualTo(3.7416573867739413);
     }
 
     @Test
-    public void multiply() {
+    void multiply() {
         Vector v = new Vector(1, 2, 3);
         v = v.mul(2);
         assertThat(v.getX()).isEqualTo(2);
@@ -37,7 +37,7 @@ public class TestVector {
     }
 
     @Test
-    public void add() {
+    void add() {
         Vector v1 = new Vector(1, 2, 3);
         Vector v2 = new Vector(2, 3, 4);
         Vector v = v1.add(v2);
@@ -47,7 +47,7 @@ public class TestVector {
     }
 
     @Test
-    public void subtract() {
+    void subtract() {
         Vector v1 = new Vector(5, 2, 9);
         Vector v2 = new Vector(2, 3, 4);
         Vector v = v1.subtract(v2);
