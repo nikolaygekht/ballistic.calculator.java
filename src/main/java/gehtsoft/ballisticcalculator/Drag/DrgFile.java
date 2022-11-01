@@ -2,12 +2,8 @@ package gehtsoft.ballisticcalculator.drag;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.measure.*;
 import javax.measure.quantity.*;
-
-import si.uom.SI;
-import tech.units.indriya.quantity.Quantities;
 
 @java.lang.SuppressWarnings("java:S3252") //false positive for java's own SI.*
 public class DrgFile extends AdvancedDragTable {
@@ -30,7 +26,7 @@ public class DrgFile extends AdvancedDragTable {
         return mBulletWeight;
     }
 
-    private DrgFile(String name, Quantity<Length> bulletDiameter, 
+    DrgFile(String name, Quantity<Length> bulletDiameter, 
                     Quantity<Mass> bulletWeight, 
                     DragTableDataPoint[] points)
     {
@@ -49,39 +45,7 @@ public class DrgFile extends AdvancedDragTable {
     public static DrgFile read(BufferedReader source)
         throws IOException, IllegalArgumentException
     {
-        String name = null;
-        Quantity<Length> bulletDiameter = null;
-        Quantity<Mass> bulletWeight = null;
-        ArrayList<DragTableDataPoint> list = new ArrayList<>();
-
-        String line;
-
-        while ((line = source.readLine()) != null)
-        {
-            if (line.trim().length() == 0)
-                continue;
-            if (name == null) {
-                String[] tokens = line.split(",\\s*");
-                if (tokens.length >= 4) {
-                    if (!tokens[0].equals("CFM") && !tokens[0].equals("BRL")) {
-                        throw new IllegalArgumentException("Invalid file format: the table must be CFM or BRL format but it is " + tokens[0]);
-                    }
-                    name = tokens[1].trim();
-                    bulletWeight = Quantities.getQuantity(Double.parseDouble(tokens[2]), SI.KILOGRAM);
-                    bulletDiameter = Quantities.getQuantity(Double.parseDouble(tokens[3]), SI.METRE);
-                }
-            } else {
-                String[] tokens = line.split("\\s+");
-                if (tokens.length == 2) {
-                    double dragCoefficient = Double.parseDouble(tokens[0]);
-                    double mach = Double.parseDouble(tokens[1]);
-                    list.add(new DragTableDataPoint(mach, dragCoefficient));
-                }
-            }
-        }
-
-        DragTableDataPoint[] points = new DragTableDataPoint[list.size()];
-        list.toArray(points);
-        return new DrgFile(name, bulletDiameter, bulletWeight, points);
-    }
+        DrgFileReader reader = new DrgFileReader(source);
+        return reader.read();
+    }   
 }

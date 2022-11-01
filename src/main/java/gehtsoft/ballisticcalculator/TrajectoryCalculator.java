@@ -14,8 +14,8 @@ import tech.units.indriya.quantity.Quantities;
 @java.lang.SuppressWarnings("java:S3252") //false positive for java's own SI.*
 public class TrajectoryCalculator {
     /** The maximum step size of the calculation.
-         * The default value is 10cm
-        */
+      * The default value is 10cm
+      */
     private Quantity<Length> mMaximumCalculationStepSize = Quantities.getQuantity(0.1, SI.METRE);
 
     /** The maximum drop value to stop further calculation */
@@ -28,6 +28,7 @@ public class TrajectoryCalculator {
     /** PIR = (PI/8)*(RHO0/144) */
     private static final double PIR = 2.08551e-04;
 
+    @java.lang.SuppressWarnings("java:S3776") //splitting this method into smaller ones would affect performance
     /**
       * Calculates the sight angle for the specified zero distance
       */
@@ -87,7 +88,9 @@ public class TrajectoryCalculator {
             var rawMinimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
 
             //run all the way down the range
-            while (rangeVector.getX() <= rawMaximumRange) {
+            while (rangeVector.getX() <= rawMaximumRange &&
+                   velocity >= rawMinimumVelocity &&
+                   rangeVector.getY() >= rawMaximumDrop) {
                 var alt = alt0 + rangeVector.getY();
 
                 if (Math.abs(alt - lastAtAltitude) > altDelta) {
@@ -97,10 +100,6 @@ public class TrajectoryCalculator {
                     mach = UnitUtils.in(atmosphere.getSpeedOfSound(t), BCUnits.FEET_PER_SECOND);
                     lastAtAltitude = alt;
                 }
-
-                if (velocity < rawMinimumVelocity ||
-                    rangeVector.getY() < rawMaximumDrop)
-                    break;
 
                 double deltaTime = calculationStep / velocityVector.getX();
                 double currentMach = velocity / mach;
@@ -147,15 +146,10 @@ public class TrajectoryCalculator {
         throw new IllegalArgumentException("Cannot find zero parameters for the specified zeroing information");
     }
 
-    /// <summary>
-    /// Calculates the trajectory for the specified parameters.
-    /// </summary>
-    /// <param name="ammunition"></param>
-    /// <param name="rifle"></param>
-    /// <param name="atmosphere"></param>
-    /// <param name="shot"></param>
-    /// <param name="wind"></param>
-    /// <returns></returns>
+    @java.lang.SuppressWarnings("java:S3776") //splitting this method into smaller ones would affect performance
+    /** 
+      * Calculates the trajectory for the specified parameters.
+      */ 
     public TrajectoryPoint[] calculate(Projectile ammunition, Weapon rifle, Atmosphere atmosphere, ShotParameters shot, Wind wind)
     {
         var rangeTo = UnitUtils.in(shot.getMaximumDistance(), CLDR.FOOT);
@@ -239,7 +233,9 @@ public class TrajectoryCalculator {
         var rawMinimumVelocity = UnitUtils.in(mMinimumVelocity, BCUnits.FEET_PER_SECOND);
 
         //run all the way down the range
-        while (rangeVector.getX() <= maximumRange)
+        while (rangeVector.getX() <= maximumRange &&
+               velocity >= rawMinimumVelocity &&
+               rangeVector.getY() >= rawMaximumDrop)
         {
             var alt = alt0 + rangeVector.getY();
 
@@ -252,10 +248,6 @@ public class TrajectoryCalculator {
                 mach = UnitUtils.in(atmosphere.getSpeedOfSound(t), BCUnits.FEET_PER_SECOND);
                 lastAtAltitude = alt;
             }
-
-            if (velocity < rawMinimumVelocity || 
-                rangeVector.getY() < rawMaximumDrop)
-                break;
 
             if (rangeVector.getX() >= nextRangeDistance)
             {

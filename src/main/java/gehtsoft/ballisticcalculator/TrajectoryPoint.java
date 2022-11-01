@@ -117,6 +117,7 @@ public class TrajectoryPoint
         }
     }
 
+    @java.lang.SuppressWarnings("java:S107") //this is serialization constructor, it has to be this
     /** 
      * Constructor (for serialization)
      */
