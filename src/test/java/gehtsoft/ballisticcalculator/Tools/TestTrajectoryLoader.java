@@ -113,7 +113,7 @@ class TestTrajectoryLoader {
         assertThat(point.getMach()).isEqualTo(2.355);
         assertThat(point.getFlightTime()).isEqualTo(Quantities.getQuantity(0.213, SI.SECOND));
         assertThat(point.getDrop()).isEqualTo(Quantities.getQuantity(-2.9, CLDR.INCH));
-        assertThat(point.getWindage()).isEqualTo(Quantities.getQuantity(0.2, CLDR.INCH));
+        assertThat(point.getWindage()).isEqualTo(Quantities.getQuantity(-0.2, CLDR.INCH));
         assertThat(point.getEnergy()).isEqualTo(Quantities.getQuantity(3376.2, BCUnits.FOOT_POUND));
     }
 }
