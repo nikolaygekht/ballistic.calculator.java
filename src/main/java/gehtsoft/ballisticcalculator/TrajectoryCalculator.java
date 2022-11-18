@@ -147,9 +147,9 @@ public class TrajectoryCalculator {
     }
 
     @java.lang.SuppressWarnings("java:S3776") //splitting this method into smaller ones would affect performance
-    /** 
+    /**
       * Calculates the trajectory for the specified parameters.
-      */ 
+      */
     public TrajectoryPoint[] calculate(Projectile ammunition, Weapon rifle, Atmosphere atmosphere, ShotParameters shot, Wind wind)
     {
         var rangeTo = UnitUtils.in(shot.getMaximumDistance(), CLDR.FOOT);
@@ -170,8 +170,8 @@ public class TrajectoryCalculator {
         double stabilityCoefficient = 1;
         Boolean calculateDrift;
 
-        if (rifle.getRifling() != null && 
-            ammunition.getBulletDiameter() != null && 
+        if (rifle.getRifling() != null &&
+            ammunition.getBulletDiameter() != null &&
             ammunition.getBulletLength() != null)
         {
             stabilityCoefficient = calculateStabilityCoefficient(ammunition, rifle, atmosphere);
@@ -211,13 +211,13 @@ public class TrajectoryCalculator {
         //x - distance towards target,
         //y - drop and
         //z - windage
-        var rangeVector = new Vector(0, 
-                                     -UnitUtils.in(rifle.getZeroingInformation().getSightHeight(), CLDR.FOOT), 
+        var rangeVector = new Vector(0,
+                                     -UnitUtils.in(rifle.getZeroingInformation().getSightHeight(), CLDR.FOOT),
                                      0);
 
         var velocityVector = new Vector(velocity * Math.cos(barrelElevation) * Math.cos(barrelAzimuth),
                                         velocity * Math.sin(barrelElevation),
-                                        velocity * Math.cos(barrelElevation) * Math.sin(barrelAzimuth));                                     
+                                        velocity * Math.cos(barrelElevation) * Math.sin(barrelAzimuth));
         int currentItem = 0;
         var maximumRange = rangeTo + calculationStep;
         var nextRangeDistance = 0;
@@ -253,9 +253,9 @@ public class TrajectoryCalculator {
             {
                 var windage = rangeVector.getZ();
                 if (Boolean.TRUE.equals(calculateDrift))
-                    windage += (1.25 * (stabilityCoefficient + 1.2) * 
-                                       Math.pow(time, 1.83) * 
-                                       (rifle.getRifling().getTwistDirection() == TwistDirection.RIGHT ? 1 : -1)) / 12.0;
+                    windage += (1.25 * (stabilityCoefficient + 1.2) *
+                                       Math.pow(time, 1.83) *
+                                       (rifle.getRifling().getTwistDirection() == TwistDirection.RIGHT ? -1 : 1)) / 12.0;
 
                 trajectoryPoints[currentItem] = new TrajectoryPoint(
                     ammunition.getBulletWeight(),
@@ -284,15 +284,15 @@ public class TrajectoryCalculator {
                 dragTableNode = dragTableNode.getPrevious();
 
             var cd = dragTableNode.calculateDrag(currentMach);
-            drag = accumulatedFactor * densityFactor * 
-                    cd *  
+            drag = accumulatedFactor * densityFactor *
+                    cd *
                     velocity;
 
             velocityVector = new Vector(
                 velocityVector.getX() - velocityAdjusted.getX() * (deltaTime * drag),
                 velocityVector.getY() - velocityAdjusted.getY() * (deltaTime * drag)
                                         - (earthGravity * deltaTime),
-                velocityVector.getZ() - velocityAdjusted.getZ() * (deltaTime * drag));            
+                velocityVector.getZ() - velocityAdjusted.getZ() * (deltaTime * drag));
 
             var deltaRangeVector = new Vector(calculationStep,
                 velocityVector.getY() * deltaTime,
