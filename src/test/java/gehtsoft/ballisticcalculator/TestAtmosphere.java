@@ -71,6 +71,16 @@ class TestAtmosphere {
 
       var df = atm.getDensityFactorForTemperature(Quantities.getQuantity(1000, SI.METRE), t);
       assertThat(df).isEqualTo(0.83370452858203414996288047512992, within(0.1));
-
     }
+
+    @Test
+    void speedOfSoundAt100Feet() {
+        Atmosphere atm = new Atmosphere(Quantities.getQuantity(30.48, SI.METRE), 
+                                        Quantities.getQuantity(29.92, CLDR.INCH_HG), 
+                                        false,
+                                        Quantities.getQuantity(59.0, CLDR.FAHRENHEIT), 0);
+        assertThat(UnitUtils.in(atm.getSpeedOfSound(), SI.METRE_PER_SECOND))
+                .isEqualTo(340.0, within(9e-1));
+    }
+
 }
